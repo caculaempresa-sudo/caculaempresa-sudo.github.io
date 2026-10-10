@@ -136,6 +136,8 @@
   .tel .home .rot{grid-column:1/4;text-align:center;font-weight:700;color:var(--terracota);margin-top:-4px}
   #guia .acoes{margin-top:14px}
   #guia .acoes .botao{margin:10px 0}
+  #guia .pular-info{background:#FFF6E0;border-radius:12px;padding:10px 12px;font-size:.95rem;line-height:1.4;color:var(--tinta);margin:4px 0 0}
+  #guia .pular-info b{color:var(--terracota)}
   #guia .depois{display:block;margin:6px auto 0;background:none;border:0;color:var(--suave);font-size:.95rem;text-decoration:underline;cursor:pointer}
   @media (prefers-reduced-motion: reduce){.alvo,.tel .home .meu{animation:none}}
   /* ---------- vídeo da Rita Caçula (até o cliente fazer o cadastro) ---------- */
@@ -181,8 +183,10 @@
     <div class="acoes">
       <button id="btnGuiaUmToque" class="botao principal oculto">📲 Colocar a Caçula no meu celular</button>
       <button id="btnGuiaPronto" class="botao secundario">✔ Pronto, já coloquei</button>
-      <button id="btnGuiaDepois" class="depois">Agora não, fazer meu pedido</button>
+      <button id="btnGuiaDepois" class="botao secundario">⏭ Pular e fazer meu pedido</button>
     </div>
+    <p class="pular-info">Não quer colocar o ícone? <b>Sem problema!</b> Toque em <b>“Pular”</b> e faça seus pedidos
+      sempre pelo <b>link que enviamos no seu WhatsApp</b>. Funciona do mesmo jeito.</p>
   </div>
 </div>
 
