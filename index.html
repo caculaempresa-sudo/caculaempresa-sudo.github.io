@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caçula – Salgados &amp; Caldo de Cana</title>
+<meta name="description" content="Peça seus salgados da Caçula pelo celular.">
+<meta name="theme-color" content="#9E3418">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://script.google.com https://*.googleusercontent.com; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Caçula">
+<meta property="og:title" content="Caçula – Salgados &amp; Caldo de Cana">
+<meta property="og:description" content="Peça seus salgados pelo app oficial da Caçula. Cariacica – ES.">
+<meta property="og:url" content="https://caculaempresa-sudo.github.io/">
+<meta property="og:image" content="https://caculaempresa-sudo.github.io/icone-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:locale" content="pt_BR">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caçula">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root{
+    --creme:#F6EBD6; --terracota:#9E3418; --terracota-escuro:#7A2710;
+    --dourado:#E9A23B; --tinta:#2B1A12; --suave:#6B5446;
+    box-sizing:border-box;
+  }
+  *{box-sizing:inherit}
+  html,body{margin:0;height:100%;background:var(--creme);color:var(--tinta);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .tela{min-height:100%;display:none}
+  .tela.ativa{display:block}
+
+  /* ---------- tela de entrada ---------- */
+  #inicio{padding:calc(env(safe-area-inset-top,0px) + 28px) 22px calc(env(safe-area-inset-bottom,0px) + 28px);
+    max-width:460px;margin:0 auto;text-align:center}
+  .icone{width:112px;height:112px;border-radius:26px;box-shadow:0 8px 24px rgba(122,39,16,.25)}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:2.3rem;margin:18px 0 2px;color:var(--terracota)}
+  .sub{margin:0 0 6px;color:var(--suave);font-size:1rem}
+  .local{margin:0 0 26px;color:var(--terracota-escuro);font-weight:600;letter-spacing:.04em;font-size:.82rem;text-transform:uppercase}
+  .botao{display:block;width:100%;border:0;border-radius:16px;padding:17px 18px;font-size:1.12rem;font-weight:700;
+    cursor:pointer;margin:12px 0;text-decoration:none}
+  .botao.principal{background:var(--terracota);color:#fff;box-shadow:0 6px 16px rgba(158,52,24,.3)}
+  .botao.secundario{background:#fff;color:var(--terracota);border:2px solid var(--terracota)}
+  .aviso{background:#fff;border-radius:16px;padding:16px 18px;margin:16px 0;text-align:left;
+    border-left:6px solid var(--dourado);font-size:1rem;line-height:1.45}
+  .aviso b{color:var(--terracota)}
+  .oculto{display:none !important}
+  .rodape{margin-top:26px;font-size:.85rem;color:var(--suave)}
+  .seguro{background:#fff;border-radius:16px;padding:14px 16px;margin:18px 0 0;text-align:left;font-size:.92rem;line-height:1.45;
+    border:1px solid #E6D5B8}
+  .seguro h2{font-size:1rem;margin:0 0 6px;color:var(--terracota)}
+  .seguro ul{margin:0;padding-left:1.1em}
+  .seguro li{margin:3px 0}
+  .empresa{margin-top:18px;font-size:.8rem;color:var(--suave);line-height:1.5}
+
+  /* ---------- tela do cardápio ---------- */
+  #cardapio{position:fixed;inset:0;flex-direction:column}
+  #cardapio.ativa{display:flex}
+  .barra{display:flex;align-items:center;gap:10px;background:var(--terracota);color:#fff;
+    padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px}
+  .barra img{width:30px;height:30px;border-radius:8px}
+  .barra .nome{font-family:Georgia,serif;font-size:1.15rem;font-weight:700;flex:1}
+  .barra button{background:var(--dourado);color:var(--tinta);border:0;border-radius:999px;padding:7px 13px;
+    font-weight:700;font-size:.9rem;cursor:pointer}
+  iframe{flex:1;width:100%;border:0;background:#fff}
+  .dica{display:flex;gap:10px;align-items:flex-start;background:#FFF6E0;border-bottom:1px solid #E6D5B8;
+    padding:10px 12px;font-size:.88rem;line-height:1.4}
+  .dica button{margin-left:auto;background:var(--terracota);color:#fff;border:0;border-radius:10px;
+    padding:6px 12px;font-weight:700;cursor:pointer;flex:none}
+  .reserva{background:var(--creme);text-align:center;padding:6px 10px calc(env(safe-area-inset-bottom,0px) + 6px);font-size:.82rem}
+  .reserva a{color:var(--terracota);font-weight:600}
+
+  /* ---------- convite depois do pedido ---------- */
+  #convite{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+    background:#fff;border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:10}
+  #convite p{margin:0 0 10px;font-size:1rem;line-height:1.4}
+  #convite .linha{display:flex;gap:10px}
+  #convite .linha .botao{margin:0;padding:12px;font-size:1rem}
+  /* ---------- tela de abertura (app instalado) ---------- */
+  #abertura{position:fixed;inset:0;z-index:20;background:var(--creme);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:24px;transition:opacity .45s ease}
+  #abertura.sumindo{opacity:0}
+  #abertura img{width:132px;height:132px;border-radius:30px;box-shadow:0 8px 24px rgba(122,39,16,.25)}
+  #abertura h1{margin:18px 0 4px}
+  #abertura .slogan{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:1.35rem;
+    color:var(--terracota-escuro);max-width:320px;line-height:1.35;margin:10px 0 0}
+  @media (prefers-reduced-motion: reduce){#abertura{transition:none}}
+  :focus-visible{outline:3px solid var(--dourado);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<!-- Tela de abertura: aparece por 2 segundos quando o cliente toca no ícone -->
+<div id="abertura" class="oculto" aria-hidden="true">
+  <img src="icone-192.png" alt="">
+  <h1>Caçula</h1>
+  <p class="sub">Salgados &amp; Caldo de Cana</p>
+  <p id="sloganAbertura" class="slogan"></p>
+</div>
+
+<!-- Tela de entrada: aparece quando o link é aberto no navegador -->
+<section id="inicio" class="tela" aria-label="Boas-vindas">
+  <img class="icone" src="icone-192.png" alt="Ícone da Caçula">
+  <h1>Caçula</h1>
+  <p class="sub">Salgados &amp; Caldo de Cana</p>
+  <p class="local">Tradição 100% Cariacica – ES</p>
+
+  <div id="avisoInstagram" class="aviso oculto">
+    <b>Abra no navegador para instalar.</b><br>
+    Toque nos <b>três pontinhos ⋯</b> no canto da tela e escolha <b>“Abrir no navegador”</b>.
+  </div>
+
+  <button id="btnInstalar" class="botao principal oculto">📲 Instalar o app da Caçula</button>
+
+  <div id="avisoIphone" class="aviso oculto">
+    <b>Para ter o ícone da Caçula no iPhone:</b><br>
+    1. Toque em <b>Compartilhar</b> <span aria-hidden="true">⬆️</span> (embaixo da tela).<br>
+    2. Toque em <b>“Adicionar à Tela de Início”</b>.
+  </div>
+
+  <div id="avisoAndroid" class="aviso oculto">
+    <b>Para ter o ícone da Caçula:</b><br>
+    toque nos <b>três pontinhos ⋮</b> do navegador e escolha <b>“Instalar app”</b> ou <b>“Adicionar à tela inicial”</b>.
+  </div>
+
+  <div id="avisoPC" class="aviso oculto">
+    <b>No computador também funciona:</b><br>
+    clique no ícone de <b>instalar</b> na barra de endereço do Chrome ou do Edge
+    (ou em <b>⋮ → Instalar Caçula</b>) e o app abre numa janela própria.
+  </div>
+
+  <button id="btnPedir" class="botao secundario">🛒 Fazer meu pedido agora</button>
+
+  <p class="rodape">Pedidos de salgados para retirada e entrega.<br>Pagamento em dinheiro ou PIX.</p>
+
+  <section class="seguro" aria-label="Segurança">
+    <h2>🔒 App oficial e seguro</h2>
+    <ul>
+      <li>Não baixa nenhum arquivo nem programa: é só um atalho para o nosso cardápio.</li>
+      <li>Não pede senha, cartão, CPF nem acesso a fotos, contatos ou localização.</li>
+      <li><b>Bem levinho:</b> o app inteiro tem menos de 100 KB, menos que uma foto do WhatsApp.
+          Um aplicativo comum de loja ocupa centenas de vezes mais.</li>
+      <li>Não fica rodando escondido, não gasta bateria nem internet quando está fechado.</li>
+      <li>Para tirar, é só segurar o ícone e escolher <b>Remover</b> ou <b>Desinstalar</b>, como qualquer app.</li>
+      <li>Sem propaganda de terceiros e sem rastreadores: só a Caçula aparece aqui.</li>
+      <li>Nosso cardápio fica no Google. Por isso, no alto dele, pode aparecer uma <b>faixa cinza do Google</b>
+          dizendo que o aplicativo foi criado por um usuário. É um aviso normal do Google,
+          <b>não é vírus nem propaganda</b>: pode fazer seu pedido tranquilo.</li>
+      <li>Endereço com cadeado (https): a conexão é protegida.</li>
+      <li>No PIX, confira sempre o nome do recebedor antes de pagar.</li>
+      <li>Dúvidas? Fale com a gente pelo WhatsApp oficial da Caçula.</li>
+    </ul>
+  </section>
+
+  <p class="empresa">Cacula Salgaderia LTDA · CNPJ 15.650.163/0001-97<br>
+  Caldo de Cana Caçula · Cariacica – ES<br>
+  Seus dados (nome, WhatsApp e endereço) são usados só para entregar o seu pedido.</p>
+</section>
+
+<!-- Tela do cardápio: abre direto quando o cliente toca no ícone -->
+<section id="cardapio" class="tela" aria-label="Cardápio">
+  <div class="barra">
+    <img src="icone-192.png" alt="">
+    <span class="nome">Caçula</span>
+    <button id="btnInstalarBarra" class="oculto">📲 Instalar</button>
+  </div>
+  <div id="dicaGoogle" class="dica oculto">
+    <span>ℹ️ Se aparecer uma <b>faixa cinza do Google</b> no alto do cardápio, fique tranquilo:
+    é um aviso normal do Google, não é vírus nem propaganda.</span>
+    <button id="btnEntendi">Entendi</button>
+  </div>
+  <iframe id="quadro" title="Cardápio da Caçula" allow="clipboard-write; clipboard-read"></iframe>
+  <div class="reserva">O cardápio não apareceu? <a id="linkReserva" href="#">Toque aqui</a></div>
+</section>
+
+<!-- Convite para instalar, mostrado depois do primeiro pedido -->
+<div id="convite" class="oculto" role="dialog" aria-label="Instalar o app">
+  <p><b>Pedido recebido! 🎉</b><br>Quer o ícone da Caçula no seu celular para pedir mais rápido da próxima vez?</p>
+  <div class="linha">
+    <button id="btnConviteSim" class="botao principal">Quero</button>
+    <button id="btnConviteNao" class="botao secundario">Agora não</button>
+  </div>
+</div>
+
+<script>
+  // Endereço do cardápio online (Apps Script da conta da empresa)
+  const CARDAPIO = "https://script.google.com/macros/s/AKfycbze0PlYjR7VxK1BeebicO2ejmPpTnzVfVOcjA6etmKre4TNSkRE4MQwCZX76XQXwAoxaQ/exec";
+
+  const ua = navigator.userAgent || "";
+  const instalado = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const ehIphone = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const dentroDeApp = /Instagram|FBAN|FBAV|FB_IAB|Line\//.test(ua);
+  const ehCelular = /Android|iPhone|iPad|iPod|Mobile/.test(ua) || ehIphone;
+  // Link pessoal do cliente (o que vem depois do "?"): guarda no celular para o ícone já abrir identificado
+  let complemento = location.search || "";
+  try {
+    if (complemento) localStorage.setItem("cacula_link_pessoal", complemento);
+    else complemento = localStorage.getItem("cacula_link_pessoal") || "";
+  } catch (e) {}
+  const enderecoCardapio = CARDAPIO + complemento;
+  let pedidoInstalacao = null;
+
+  const $ = (id) => document.getElementById(id);
+  const mostrar = (id) => $(id).classList.remove("oculto");
+  const esconder = (id) => $(id).classList.add("oculto");
+
+  function abrirTela(nome) {
+    document.querySelectorAll(".tela").forEach((t) => t.classList.remove("ativa"));
+    $(nome).classList.add("ativa");
+    if (nome === "cardapio" && !$("quadro").src) $("quadro").src = enderecoCardapio;
+    if (nome === "cardapio") {
+      let viu = false;
+      try { viu = localStorage.getItem("cacula_dica_google") === "1"; } catch (e) {}
+      if (!viu) mostrar("dicaGoogle");
+    }
+  }
+
+  async function instalar() {
+    if (pedidoInstalacao) {
+      pedidoInstalacao.prompt();
+      await pedidoInstalacao.userChoice;
+      pedidoInstalacao = null;
+      esconder("btnInstalar"); esconder("btnInstalarBarra");
+    } else if (ehIphone) {
+      abrirTela("inicio"); mostrar("avisoIphone");
+    } else {
+      abrirTela("inicio"); mostrar(ehCelular ? "avisoAndroid" : "avisoPC");
+    }
+  }
+
+  // Android/Chrome: o navegador avisa que dá para instalar
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    pedidoInstalacao = e;
+    if (!instalado) { mostrar("btnInstalar"); mostrar("btnInstalarBarra"); esconder("avisoAndroid"); }
+  });
+  window.addEventListener("appinstalled", () => {
+    esconder("btnInstalar"); esconder("btnInstalarBarra"); esconder("convite");
+  });
+
+  // O cardápio pode avisar que o pedido foi enviado (opcional, ver LEIA-ME)
+  window.addEventListener("message", (e) => {
+    const origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname);
+    if (origemOk && e.data === "cacula:pedido-enviado" && !instalado) mostrar("convite");
+  });
+
+  $("btnPedir").addEventListener("click", () => abrirTela("cardapio"));
+  $("btnInstalar").addEventListener("click", instalar);
+  $("btnInstalarBarra").addEventListener("click", instalar);
+  $("btnConviteSim").addEventListener("click", () => { esconder("convite"); instalar(); });
+  $("btnConviteNao").addEventListener("click", () => esconder("convite"));
+  $("btnEntendi").addEventListener("click", () => {
+    esconder("dicaGoogle");
+    try { localStorage.setItem("cacula_dica_google", "1"); } catch (e) {}
+  });
+  $("linkReserva").addEventListener("click", (e) => { e.preventDefault(); location.href = enderecoCardapio; });
+
+  // Slogans da Caçula: um diferente a cada abertura do app
+  const SLOGANS = [
+    "Pequena no nome, grande no sabor!",
+    "A caçula que todo Capixaba conhece.",
+    "Salgado com sabor e caldo com frescor.",
+    "Caçula: mal PIXcou, já dá vontade de dar outra PIXcadinha!",
+    "100% Capixaba, mais 100% Cariacica!",
+    "Mão na massa todo dia, sabor na sua mesa!",
+    "Salgado Caçula: amor à primeira mordida!"
+  ];
+  function mostrarAbertura() {
+    let ultimo = -1;
+    try { ultimo = parseInt(localStorage.getItem("cacula_ultimo_slogan") || "-1", 10); } catch (e) {}
+    let i = Math.floor(Math.random() * SLOGANS.length);
+    if (i === ultimo) i = (i + 1) % SLOGANS.length;          // não repete o da última vez
+    try { localStorage.setItem("cacula_ultimo_slogan", String(i)); } catch (e) {}
+    $("sloganAbertura").textContent = SLOGANS[i];
+    mostrar("abertura");
+    const fechar = () => {
+      $("abertura").classList.add("sumindo");
+      setTimeout(() => esconder("abertura"), 450);
+    };
+    $("abertura").addEventListener("click", fechar, { once: true });   // tocar pula a abertura
+    setTimeout(fechar, 2000);
+  }
+
+  // Primeira tela
+  if (instalado) {
+    abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
+    mostrarAbertura();                        // e a abertura com o slogan aparece na frente
+  } else {
+    abrirTela("inicio");
+    if (dentroDeApp) mostrar("avisoInstagram");
+    else if (ehIphone) mostrar("avisoIphone");
+    setTimeout(() => {
+      if (pedidoInstalacao || ehIphone || dentroDeApp) return;
+      mostrar(ehCelular ? "avisoAndroid" : "avisoPC");
+    }, 2500);
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+</script>
+</body>
+</html>
