@@ -49,6 +49,7 @@
   .aviso{background:#fff;border-radius:16px;padding:16px 18px;margin:16px 0;text-align:left;
     border-left:6px solid var(--dourado);font-size:1rem;line-height:1.45}
   .aviso b{color:var(--terracota)}
+  .aviso .nota{display:block;margin-top:8px;font-size:.9rem;color:var(--suave)}
   .oculto{display:none !important}
   .rodape{margin-top:26px;font-size:.85rem;color:var(--suave)}
   .seguro{background:#fff;border-radius:16px;padding:14px 16px;margin:18px 0 0;text-align:left;font-size:.92rem;line-height:1.45;
@@ -143,8 +144,13 @@
   </div>
 
   <div id="avisoAndroid" class="aviso oculto">
-    <b>Para ter o ícone da Caçula:</b><br>
-    toque nos <b>três pontinhos ⋮</b> do navegador e escolha <b>“Instalar app”</b> ou <b>“Adicionar à tela inicial”</b>.
+    <b>Para ter o ícone da Caçula (sem instalar nada):</b><br>
+    1. Toque nos <b>três pontinhos ⋮</b> no canto de cima do navegador.<br>
+    2. Toque em <b>“Adicionar à tela inicial”</b>.<br>
+    3. Se aparecer a escolha, toque em <b>“Criar atalho”</b> e depois em <b>“Adicionar”</b>.<br>
+    <span class="nota">Se o celular mostrar um aviso de <b>“risco”</b> ao tentar instalar, fique tranquilo:
+    é só a proteção do celular para apps que não vêm da Play Store. Use o atalho acima, que não instala nada
+    e funciona igualzinho.</span>
   </div>
 
   <div id="avisoPC" class="aviso oculto">
@@ -212,6 +218,10 @@
 
   const ua = navigator.userAgent || "";
   const instalado = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  // Aberto pelo atalho da tela inicial (o endereço do atalho termina em #icone): funciona como o app instalado
+  const pelaTela = instalado || location.hash === "#icone";
+  // Celulares Samsung costumam barrar a instalação ("risco"): para eles, só o atalho
+  const ehSamsung = /Samsung|SM-[A-Z0-9]/i.test(ua);
   const ehIphone = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const dentroDeApp = /Instagram|FBAN|FBAV|FB_IAB|Line\//.test(ua);
   const ehCelular = /Android|iPhone|iPad|iPod|Mobile/.test(ua) || ehIphone;
@@ -256,7 +266,7 @@
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     pedidoInstalacao = e;
-    if (!instalado) { mostrar("btnInstalar"); mostrar("btnInstalarBarra"); esconder("avisoAndroid"); }
+    if (!pelaTela && !ehSamsung) { mostrar("btnInstalar"); mostrar("btnInstalarBarra"); }
   });
   window.addEventListener("appinstalled", () => {
     esconder("btnInstalar"); esconder("btnInstalarBarra"); esconder("convite");
@@ -266,7 +276,7 @@
   window.addEventListener("message", (e) => {
     let origemOk = false;
     try { origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname); } catch (err) {}
-    if (origemOk && e.data === "cacula:pedido-enviado" && !instalado) mostrar("convite");
+    if (origemOk && e.data === "cacula:pedido-enviado" && !pelaTela) mostrar("convite");
     // O cardápio avisa que o cliente já tem cadastro: o vídeo da Rita não aparece mais
     if (origemOk && e.data === "cacula:cadastrado") {
       try { localStorage.setItem("cacula_cadastrado", "1"); } catch (err) {}
@@ -337,18 +347,20 @@
   }
 
   // Primeira tela
-  if (instalado) {
+  if (pelaTela) {
     abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
     if (jaCadastrado()) mostrarAbertura();    // cliente com cadastro: abertura com o slogan
     else mostrarIntro();                      // ainda sem cadastro: vídeo da Rita Caçula
   } else {
     abrirTela("inicio");
+    // o atalho criado a partir desta tela já sai com #icone no endereço
+    if (ehCelular && !dentroDeApp) {
+      try { history.replaceState(null, "", location.pathname + location.search + "#icone"); } catch (e) {}
+    }
     if (dentroDeApp) mostrar("avisoInstagram");
     else if (ehIphone) mostrar("avisoIphone");
-    setTimeout(() => {
-      if (pedidoInstalacao || ehIphone || dentroDeApp) return;
-      mostrar(ehCelular ? "avisoAndroid" : "avisoPC");
-    }, 2500);
+    else if (ehCelular) mostrar("avisoAndroid");
+    else setTimeout(() => { if (!pedidoInstalacao) mostrar("avisoPC"); }, 2500);
   }
 
   if ("serviceWorker" in navigator) {
