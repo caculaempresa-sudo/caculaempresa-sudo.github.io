@@ -90,6 +90,16 @@
   #abertura .slogan{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:1.35rem;
     color:var(--terracota-escuro);max-width:320px;line-height:1.35;margin:10px 0 0}
   @media (prefers-reduced-motion: reduce){#abertura{transition:none}}
+  /* ---------- vídeo da Rita Caçula (até o cliente fazer o cadastro) ---------- */
+  #intro{position:fixed;inset:0;z-index:30;background:var(--creme);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;transition:opacity .5s ease}
+  #intro.sumindo{opacity:0}
+  #intro video{width:100%;height:100%;max-width:560px;object-fit:contain;background:var(--creme)}
+  #intro .tocar{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);
+    background:var(--terracota);color:#fff;border:0;border-radius:999px;padding:16px 26px;font-size:1.15rem;font-weight:700;
+    box-shadow:0 8px 22px rgba(158,52,24,.35);cursor:pointer;white-space:nowrap}
+  #intro .pular{position:absolute;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(255,255,255,.85);
+    color:var(--terracota);border:2px solid var(--terracota);border-radius:999px;padding:7px 16px;font-weight:700;cursor:pointer}
   :focus-visible{outline:3px solid var(--dourado);outline-offset:2px}
 </style>
 </head>
@@ -101,6 +111,15 @@
   <h1>Caçula</h1>
   <p class="sub">Salgados &amp; Caldo de Cana</p>
   <p id="sloganAbertura" class="slogan"></p>
+</div>
+
+<!-- Vídeo da Rita Caçula: aparece ao abrir o app até o cliente terminar o cadastro -->
+<div id="intro" class="oculto" role="dialog" aria-label="Boas-vindas da Caçula">
+  <video id="videoIntro" playsinline preload="auto" poster="rita-cacula.jpg">
+    <source src="rita-cacula.mp4" type="video/mp4">
+  </video>
+  <button id="btnTocarIntro" class="tocar">▶ Toque para ouvir</button>
+  <button id="btnPularIntro" class="pular">Pular</button>
 </div>
 
 <!-- Tela de entrada: aparece quando o link é aberto no navegador -->
@@ -143,8 +162,8 @@
     <ul>
       <li>Não baixa nenhum arquivo nem programa: é só um atalho para o nosso cardápio.</li>
       <li>Não pede senha, cartão, CPF nem acesso a fotos, contatos ou localização.</li>
-      <li><b>Bem levinho:</b> o app inteiro tem menos de 100 KB, menos que uma foto do WhatsApp.
-          Um aplicativo comum de loja ocupa centenas de vezes mais.</li>
+      <li><b>Bem levinho:</b> o app tem cerca de 1 MB (quase tudo é o vídeo curtinho de boas-vindas),
+          menos que um áudio do WhatsApp. Um aplicativo comum de loja ocupa centenas de vezes mais.</li>
       <li>Não fica rodando escondido, não gasta bateria nem internet quando está fechado.</li>
       <li>Para tirar, é só segurar o ícone e escolher <b>Remover</b> ou <b>Desinstalar</b>, como qualquer app.</li>
       <li>Sem propaganda de terceiros e sem rastreadores: só a Caçula aparece aqui.</li>
@@ -245,8 +264,13 @@
 
   // O cardápio pode avisar que o pedido foi enviado (opcional, ver LEIA-ME)
   window.addEventListener("message", (e) => {
-    const origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname);
+    let origemOk = false;
+    try { origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname); } catch (err) {}
     if (origemOk && e.data === "cacula:pedido-enviado" && !instalado) mostrar("convite");
+    // O cardápio avisa que o cliente já tem cadastro: o vídeo da Rita não aparece mais
+    if (origemOk && e.data === "cacula:cadastrado") {
+      try { localStorage.setItem("cacula_cadastrado", "1"); } catch (err) {}
+    }
   });
 
   $("btnPedir").addEventListener("click", () => abrirTela("cardapio"));
@@ -286,10 +310,37 @@
     setTimeout(fechar, 2000);
   }
 
+  // Vídeo da Rita Caçula: só enquanto o cliente ainda não fez o cadastro
+  function jaCadastrado() {
+    try { return localStorage.getItem("cacula_cadastrado") === "1"; } catch (e) { return false; }
+  }
+  function mostrarIntro() {
+    const v = $("videoIntro");
+    let fechado = false;
+    const fechar = () => {
+      if (fechado) return; fechado = true;
+      try { v.pause(); } catch (e) {}
+      $("intro").classList.add("sumindo");
+      setTimeout(() => esconder("intro"), 500);
+    };
+    const tocar = () => {
+      esconder("btnTocarIntro");
+      v.muted = false; v.currentTime = 0;
+      v.play().catch(() => { v.muted = true; v.play().catch(fechar); });
+    };
+    mostrar("intro");
+    $("btnTocarIntro").addEventListener("click", tocar);
+    v.addEventListener("click", () => { if (v.paused) tocar(); });
+    $("btnPularIntro").addEventListener("click", fechar);
+    v.addEventListener("ended", () => setTimeout(fechar, 400));
+    v.addEventListener("error", fechar);
+  }
+
   // Primeira tela
   if (instalado) {
     abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
-    mostrarAbertura();                        // e a abertura com o slogan aparece na frente
+    if (jaCadastrado()) mostrarAbertura();    // cliente com cadastro: abertura com o slogan
+    else mostrarIntro();                      // ainda sem cadastro: vídeo da Rita Caçula
   } else {
     abrirTela("inicio");
     if (dentroDeApp) mostrar("avisoInstagram");
