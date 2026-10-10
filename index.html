@@ -153,6 +153,15 @@
     e funciona igualzinho.</span>
   </div>
 
+  <div id="avisoSamsung" class="aviso oculto">
+    <b>Para ter o ícone da Caçula (sem instalar nada):</b><br>
+    1. Toque no <b>menu ☰</b> (três tracinhos, embaixo à direita).<br>
+    2. Toque em <b>“Adicionar página a”</b>.<br>
+    3. Toque em <b>“Tela inicial”</b> e depois em <b>“Adicionar”</b>.<br>
+    <span class="nota">Se o celular mostrar um aviso de <b>“risco”</b>, fique tranquilo: é só a proteção do celular
+    para apps que não vêm da Play Store. Esse caminho não instala nada e funciona igualzinho.</span>
+  </div>
+
   <div id="avisoPC" class="aviso oculto">
     <b>No computador também funciona:</b><br>
     clique no ícone de <b>instalar</b> na barra de endereço do Chrome ou do Edge
@@ -219,7 +228,11 @@
   const ua = navigator.userAgent || "";
   const instalado = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   // Aberto pelo atalho da tela inicial (o endereço do atalho termina em #icone): funciona como o app instalado
-  const pelaTela = instalado || location.hash === "#icone";
+  let jaVisitou = false;
+  try { jaVisitou = localStorage.getItem("cacula_visitou") === "1"; } catch (e) {}
+  const pelaTela = instalado || location.hash === "#icone" || (ehCelularCedo() && jaVisitou);
+  function ehCelularCedo() { return /Android|iPhone|iPad|iPod|Mobile/.test(ua) && !/Instagram|FBAN|FBAV|FB_IAB|Line\//.test(ua); }
+  const ehSamsungInternet = /SamsungBrowser/i.test(ua);
   // Celulares Samsung costumam barrar a instalação ("risco"): para eles, só o atalho
   const ehSamsung = /Samsung|SM-[A-Z0-9]/i.test(ua);
   const ehIphone = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -258,7 +271,9 @@
     } else if (ehIphone) {
       abrirTela("inicio"); mostrar("avisoIphone");
     } else {
-      abrirTela("inicio"); mostrar(ehCelular ? "avisoAndroid" : "avisoPC");
+      abrirTela("inicio");
+      mostrar(ehCelular ? (ehSamsungInternet ? "avisoSamsung" : "avisoAndroid") : "avisoPC");
+      window.scrollTo(0, 0);
     }
   }
 
@@ -348,6 +363,7 @@
 
   // Primeira tela
   if (pelaTela) {
+    if (!instalado && ehCelular) { $("btnInstalarBarra").textContent = "📲 Ícone"; mostrar("btnInstalarBarra"); }
     abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
     if (jaCadastrado()) mostrarAbertura();    // cliente com cadastro: abertura com o slogan
     else mostrarIntro();                      // ainda sem cadastro: vídeo da Rita Caçula
@@ -359,7 +375,9 @@
     }
     if (dentroDeApp) mostrar("avisoInstagram");
     else if (ehIphone) mostrar("avisoIphone");
-    else if (ehCelular) mostrar("avisoAndroid");
+    else if (ehCelular) mostrar(ehSamsungInternet ? "avisoSamsung" : "avisoAndroid");
+    // da próxima vez (pelo ícone ou pelo link) já abre como app: vídeo/abertura e cardápio
+    if (ehCelular && !dentroDeApp) { try { localStorage.setItem("cacula_visitou", "1"); } catch (e) {} }
     else setTimeout(() => { if (!pedidoInstalacao) mostrar("avisoPC"); }, 2500);
   }
 
