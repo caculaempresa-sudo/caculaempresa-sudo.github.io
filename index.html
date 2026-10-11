@@ -490,8 +490,44 @@
   function jaCadastrado() {
     try { return localStorage.getItem("cacula_cadastrado") === "1"; } catch (e) { return false; }
   }
-  function mostrarIntro() {
+  // ---------- Fábrica fechada: saudação da Rita (só para cliente JÁ cadastrado) ----------
+  // Fechada = sábado, domingo, feriado, ou dia útil fora das 5h às 16h (horário de Brasília/ES)
+  const HORA_ABRE = 5, HORA_FECHA = 16;
+  function pascoa(ano) {
+    const a = ano % 19, b = Math.floor(ano / 100), c = ano % 100, d = Math.floor(b / 4), e = b % 4,
+          f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
+          i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+          mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return Date.UTC(ano, mes - 1, dia);
+  }
+  function ehFeriado(d) {   // d = Date em UTC meia-noite
+    const md = String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
+    if (["01-01", "04-21", "05-01", "09-07", "10-12", "11-02", "11-15", "11-20", "12-25"].includes(md)) return true;
+    const dif = Math.round((d.getTime() - pascoa(d.getUTCFullYear())) / 86400000);
+    return [-48, -47, -2, 8, 60].includes(dif);   // Carnaval, Sexta Santa, N. Sra. da Penha (ES), Corpus Christi
+  }
+  function agoraFabrica() {
+    const p = {};
+    try {
+      new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).forEach((x) => { p[x.type] = x.value; });
+    } catch (e) { const n = new Date(); p.year = n.getFullYear(); p.month = n.getMonth() + 1; p.day = n.getDate(); p.hour = n.getHours(); p.minute = n.getMinutes(); }
+    return { d: new Date(Date.UTC(+p.year, +p.month - 1, +p.day)), h: (+p.hour % 24) + (+p.minute) / 60 };
+  }
+  function fabricaAberta() {
+    const a = agoraFabrica(), s = a.d.getUTCDay();
+    return s >= 1 && s <= 5 && !ehFeriado(a.d) && a.h >= HORA_ABRE && a.h < HORA_FECHA;
+  }
+  function periodoDoCelular() {   // segue a hora do celular do cliente
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return "dia";
+    if (h >= 12 && h < 18) return "tarde";
+    return "noite";
+  }
+
+  function mostrarIntro(arquivo) {
     const v = $("videoIntro");
+    if (arquivo) { v.poster = arquivo + ".jpg"; v.src = arquivo + ".mp4"; v.load(); }
     let fechado = false;
     const fechar = () => {
       if (fechado) return; fechado = true;
@@ -517,7 +553,9 @@
   if (pelaTela) {
     if (!instalado && ehCelular) { $("btnInstalarBarra").textContent = "📲 Ícone"; mostrar("btnInstalarBarra"); }
     abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
-    if (jaCadastrado()) {                     // cliente com cadastro: abertura com o slogan
+    if (jaCadastrado() && !fabricaAberta()) { // cadastrado + fábrica fechada: Rita dá bom dia/boa tarde/boa noite
+      mostrarIntro("rita-" + periodoDoCelular());
+    } else if (jaCadastrado()) {              // cliente com cadastro: abertura com o slogan
       mostrarAbertura();
       if (!iconeJaColocado()) setTimeout(mostrarGuia, 2300);
     }

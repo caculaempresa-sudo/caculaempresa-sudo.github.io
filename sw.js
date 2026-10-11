@@ -1,5 +1,5 @@
 // Guarda só a "casca" do app (página e ícones). O cardápio vem sempre fresco do Google.
-const CACHE = "cacula-app-v7";
+const CACHE = "cacula-app-v8";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest",
                   "./icone-192.png", "./icone-512.png", "./apple-touch-icon.png"];
 
