@@ -506,9 +506,12 @@
   }
   function ehFeriado(d) {   // d = Date em UTC meia-noite
     const md = String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
-    if (["01-01", "04-21", "05-01", "09-07", "10-12", "11-02", "11-15", "11-20", "12-25"].includes(md)) return true;
+    // Nacionais (data fixa) + 24/06 São João Batista, padroeiro e aniversário de Cariacica (municipal)
+    if (["01-01", "04-21", "05-01", "06-24", "09-07", "10-12", "11-02", "11-15", "11-20", "12-25"].includes(md)) return true;
+    // Datas que mudam todo ano (contadas a partir da Páscoa, calculadas sozinhas para qualquer ano):
+    // Carnaval (seg e ter), Sexta-feira Santa, N. Sra. da Penha (ES: segunda 8 dias após a Páscoa), Corpus Christi (Cariacica)
     const dif = Math.round((d.getTime() - pascoa(d.getUTCFullYear())) / 86400000);
-    return [-48, -47, -2, 8, 60].includes(dif);   // Carnaval, Sexta Santa, N. Sra. da Penha (ES), Corpus Christi
+    return [-48, -47, -2, 8, 60].includes(dif);
   }
   function agoraFabrica() {
     const p = {};
