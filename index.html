@@ -320,7 +320,8 @@
     if (complemento) localStorage.setItem("cacula_link_pessoal", complemento);
     else complemento = localStorage.getItem("cacula_link_pessoal") || "";
   } catch (e) {}
-  const enderecoCardapio = CARDAPIO + complemento;
+  // Celular Virtual: avisa o cardápio (?demo=N) para mostrar o tecladinho de celular no cadastro
+  const enderecoCardapio = CARDAPIO + complemento + (DEMO ? (complemento ? "&" : "?") + "demo=" + DEMO : "");
   let pedidoInstalacao = null;
 
   const $ = (id) => document.getElementById(id);
