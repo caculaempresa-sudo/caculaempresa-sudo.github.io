@@ -285,7 +285,7 @@
 
 <!-- Convite para instalar, mostrado depois do primeiro pedido -->
 <div id="convite" class="oculto" role="dialog" aria-label="Instalar o app">
-  <p><b>Pedido recebido! 🎉</b><br>Quer o ícone da Caçula no seu celular para pedir mais rápido da próxima vez?</p>
+  <p id="conviteTexto"><b>Pedido recebido! 🎉</b><br>Quer o ícone da Caçula no seu celular para pedir mais rápido da próxima vez?</p>
   <div class="linha">
     <button id="btnConviteSim" class="botao principal">Quero</button>
     <button id="btnConviteNao" class="botao secundario">Agora não</button>
@@ -368,7 +368,7 @@
     try { origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname); } catch (err) {}
     if (origemOk && e.data === "cacula:pedido-enviado") {
       let ok = false; try { ok = localStorage.getItem("cacula_icone_ok") === "1"; } catch (err) {}
-      if (!ok && !instalado && ehCelular && !dentroDeApp) setTimeout(mostrarGuia, 2500);
+      if (!iconeJaColocado() && !instalado && !dentroDeApp && (ehCelular || pedidoInstalacao)) setTimeout(mostrarConvite, 2500);
     }
     // O cardápio avisa que o cliente já tem cadastro: o vídeo da Rita não aparece mais
     if (origemOk && e.data === "cacula:cadastrado") {
@@ -376,11 +376,23 @@
     }
   });
 
-  $("btnPedir").addEventListener("click", () => abrirTela("cardapio"));
+  $("btnPedir").addEventListener("click", () => {
+    abrirTela("cardapio");
+    if (!jaCadastrado()) mostrarIntro();   // computador: cliente novo vê o vídeo da Rita antes do cadastro
+  });
   $("btnInstalar").addEventListener("click", instalar);
   $("btnInstalarBarra").addEventListener("click", instalar);
   $("btnConviteSim").addEventListener("click", () => { esconder("convite"); instalar(); });
-  $("btnConviteNao").addEventListener("click", () => esconder("convite"));
+  $("btnConviteNao").addEventListener("click", () => {
+    try { localStorage.setItem("cacula_icone_adiado", String(Date.now())); } catch (e) {}
+    esconder("convite");
+  });
+  function mostrarConvite() {
+    $("conviteTexto").innerHTML = ehCelular
+      ? "<b>Pedido recebido! 🎉</b><br>Quer o ícone da Caçula no seu celular para pedir mais rápido da próxima vez?"
+      : "<b>Pedido recebido! 🎉</b><br>Quer instalar o app da Caçula neste computador para pedir mais rápido da próxima vez?";
+    mostrar("convite");
+  }
   $("btnEntendi").addEventListener("click", () => {
     esconder("dicaGoogle");
     try { localStorage.setItem("cacula_dica_google", "1"); } catch (e) {}
@@ -541,7 +553,7 @@
       try { v.pause(); } catch (e) {}
       $("intro").classList.add("sumindo");
       setTimeout(() => esconder("intro"), 500);
-      if (!iconeJaColocado()) mostrarGuia();      // depois da apresentação: como deixar a Caçula no celular
+      // depois do vídeo segue direto para o cadastro (LGPD); o convite para instalar só vem depois do 1º pedido
     };
     const tocar = () => {
       esconder("btnTocarIntro");
@@ -564,7 +576,6 @@
       mostrarIntro("rita-" + periodoDoCelular());
     } else if (jaCadastrado()) {              // cliente com cadastro: abertura com o slogan
       mostrarAbertura();
-      if (!iconeJaColocado()) setTimeout(mostrarGuia, 2300);
     }
     else mostrarIntro();                      // ainda sem cadastro: vídeo da Rita Caçula
   } else {
