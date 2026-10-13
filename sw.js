@@ -1,7 +1,7 @@
 // Guarda só a "casca" do app (página e ícones). O cardápio vem sempre fresco do Google.
-const CACHE = "cacula-app-v9";
+const CACHE = "cacula-app-v10";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest",
-                  "./icone-192.png", "./icone-512.png", "./apple-touch-icon.png"];
+  "./icone-192.png", "./icone-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ARQUIVOS)));
@@ -19,7 +19,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
-  if (req.url.endsWith(".mp4") || req.headers.has("range")) return;   // vídeo vai direto, sem cache
+  if (req.url.endsWith(".mp4") || req.headers.has("range")) return; // vídeo vai direto, sem cache
   e.respondWith(
     fetch(req)
       .then((resp) => {
