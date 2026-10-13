@@ -297,12 +297,16 @@
   const CARDAPIO = "https://script.google.com/macros/s/AKfycbze0PlYjR7VxK1BeebicO2ejmPpTnzVfVOcjA6etmKre4TNSkRE4MQwCZX76XQXwAoxaQ/exec";
 
   const ua = navigator.userAgent || "";
-  const instalado = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  // MODO DEMONSTRAÇÃO (só pelos atalhos "Celular Virtual" do computador: endereço termina em #demo1 ... #demo4)
+  const DEMO = (location.hash.match(/^#demo(\d)/) || [])[1] || "";
+  const NOMES_DEMO = { "1": "João da Pena de Deus", "2": "Maria das Dores Sentidas",
+                       "3": "Djalma Jacinto Pinto", "4": "Raimunda Subindo e Segunda" };
+  const instalado = !DEMO && window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   // Aberto pelo atalho da tela inicial (o endereço do atalho termina em #icone): funciona como o app instalado
   let jaVisitou = false;
   try { jaVisitou = localStorage.getItem("cacula_visitou") === "1"; } catch (e) {}
   // No celular, abre sempre como app (vídeo da Rita → guia do ícone → cardápio), pelo ícone ou pelo link
-  const pelaTela = instalado || location.hash === "#icone" || ehCelularCedo();
+  const pelaTela = instalado || !!DEMO || location.hash === "#icone" || ehCelularCedo();
   function ehCelularCedo() { return /Android|iPhone|iPad|iPod|Mobile/.test(ua) && !/Instagram|FBAN|FBAV|FB_IAB|Line\//.test(ua); }
   const ehSamsungInternet = /SamsungBrowser/i.test(ua);
   // Celulares Samsung costumam barrar a instalação ("risco"): para eles, só o atalho
@@ -354,7 +358,7 @@
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     pedidoInstalacao = e;
-    if (!pelaTela && !ehSamsungInternet) { mostrar("btnInstalar"); mostrar("btnInstalarBarra"); }
+    if (!pelaTela && !DEMO && !ehSamsungInternet) { mostrar("btnInstalar"); mostrar("btnInstalarBarra"); }
   });
   window.addEventListener("appinstalled", () => {
     try { localStorage.setItem("cacula_icone_ok", "1"); } catch (e) {}
@@ -368,7 +372,8 @@
     try { origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname); } catch (err) {}
     if (origemOk && e.data === "cacula:pedido-enviado") {
       let ok = false; try { ok = localStorage.getItem("cacula_icone_ok") === "1"; } catch (err) {}
-      if (!iconeJaColocado() && !instalado && !dentroDeApp && (ehCelular || pedidoInstalacao)) setTimeout(mostrarConvite, 2500);
+      if (DEMO) setTimeout(mostrarGuiaDemo, 2500);   // demonstração: só a explicação, sem baixar nada
+      else if (!iconeJaColocado() && !instalado && !dentroDeApp && (ehCelular || pedidoInstalacao)) setTimeout(mostrarConvite, 2500);
     }
     // O cardápio avisa que o cliente já tem cadastro: o vídeo da Rita não aparece mais
     if (origemOk && e.data === "cacula:cadastrado") {
@@ -483,6 +488,20 @@
     $("guia").scrollTop = 0;
   }
   function fecharGuia() { esconder("guia"); }
+  // Demonstração: depois do pedido, mostra só a explicação de como colocar o app no celular (sem botão de baixar)
+  function mostrarGuiaDemo() {
+    const guardado = pedidoInstalacao;
+    pedidoInstalacao = null;
+    montarGuia();
+    pedidoInstalacao = guardado;
+    esconder("btnGuiaUmToque");
+    esconder("btnGuiaDepois");
+    $("btnGuiaPronto").textContent = "✔ Entendi";
+    const info = document.querySelector("#guia .pular-info");
+    if (info) info.style.display = "none";
+    mostrar("guia");
+    $("guia").scrollTop = 0;
+  }
   $("btnGuiaUmToque").addEventListener("click", async () => {
     if (!pedidoInstalacao) { montarGuia(); return; }
     pedidoInstalacao.prompt();
@@ -570,7 +589,7 @@
 
   // Primeira tela
   if (pelaTela) {
-    if (!instalado && ehCelular) { $("btnInstalarBarra").textContent = "📲 Ícone"; mostrar("btnInstalarBarra"); }
+    if (!instalado && ehCelular && !DEMO) { $("btnInstalarBarra").textContent = "📲 Ícone"; mostrar("btnInstalarBarra"); }
     abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
     if (jaCadastrado() && !fabricaAberta()) { // cadastrado + fábrica fechada: Rita dá bom dia/boa tarde/boa noite
       mostrarIntro("rita-" + periodoDoCelular());
@@ -590,6 +609,17 @@
     // da próxima vez (pelo ícone ou pelo link) já abre como app: vídeo/abertura e cardápio
     if (ehCelular && !dentroDeApp) { try { localStorage.setItem("cacula_visitou", "1"); } catch (e) {} }
     else setTimeout(() => { if (!pedidoInstalacao) mostrar("avisoPC"); }, 2500);
+  }
+
+  // Demonstração: nome do "dono" deste celular virtual em cima da tela
+  if (DEMO) {
+    const et = document.createElement("div");
+    et.textContent = "📱 Celular " + DEMO + " – " + (NOMES_DEMO[DEMO] || "Demonstração");
+    et.style.cssText = "position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:2147483647;" +
+      "background:#9C3418;color:#fff;font:700 13px/1.2 Arial,sans-serif;padding:5px 12px;border-radius:14px;" +
+      "box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;white-space:nowrap;opacity:.95";
+    document.body.appendChild(et);
+    document.title = "Celular " + DEMO + " – " + (NOMES_DEMO[DEMO] || "Caçula");
   }
 
   if ("serviceWorker" in navigator) {
