@@ -155,7 +155,7 @@
     color:#1351B4;border:2px solid #1351B4;border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer}
   #falaLibras{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:540px;margin:0 auto;
     background:rgba(255,255,255,.96);border-radius:14px;padding:10px 14px;font-size:1rem;line-height:1.45;color:var(--tinta);
-    box-shadow:0 4px 14px rgba(0,0,0,.18);max-height:40vh;overflow-y:auto;cursor:pointer}
+    box-shadow:0 4px 14px rgba(0,0,0,.18);max-height:24vh;overflow-y:auto;cursor:pointer}
   #falaLibras::after{content:"👆 Toque no texto para ver de novo em Libras";display:block;margin-top:6px;font-size:.85rem;
     font-weight:700;color:#1351B4}
   #vlibras-access-wrapper{display:none !important}
@@ -590,7 +590,7 @@
       tentativas++;
       const r = document.getElementById("vlibras-app-root");
       const f = r && r.shadowRoot && r.shadowRoot.querySelector("iframe");
-      if (f) { const pronto = () => setTimeout(depois, 8000); if (f.dataset.ok) pronto(); else f.addEventListener("load", () => { f.dataset.ok = "1"; pronto(); }, { once: true }); return; }
+      if (f) { setTimeout(depois, 14000); return; }   // o avatar se apresenta primeiro; depois traduz a fala da Rita
       if (tentativas < 120) setTimeout(olhar, 500);
     };
     olhar();
