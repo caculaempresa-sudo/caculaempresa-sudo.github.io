@@ -639,6 +639,8 @@
     $("btnTocarIntro").addEventListener("click", tocar);
     v.addEventListener("click", () => { if (v.paused) tocar(); });
     $("btnPularIntro").addEventListener("click", fechar);
+    // com a Libras aberta, o VLibras "segura" os toques para traduzir: o Continuar funciona pelo soltar do dedo
+    $("btnPularIntro").onpointerup = () => { if (librasAtivo) fechar(); };
     v.addEventListener("ended", () => { if (!librasAtivo) setTimeout(fechar, 400); });
     v.addEventListener("error", fechar);
   }
