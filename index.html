@@ -6,8 +6,57 @@
 <title>Caçula – Salgados &amp; Caldo de Cana</title>
 <meta name="description" content="Peça seus salgados da Caçula pelo celular.">
 <meta name="theme-color" content="#9E3418">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://script.google.com https://*.googleusercontent.com; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self' https://script.google.com https://*.googleusercontent.com; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<script>
+  // CELULAR VIRTUAL (só pelos atalhos do computador, endereço #demo1 ... #demo4): desenha um CELULAR de verdade
+  // em volta do app. O app roda dentro da "tela" (mesmo endereço + "-tela"), então os cadastros guardados continuam.
+  // Para o cliente de verdade (sem #demo) nada disso acontece.
+  (function () {
+    var m = location.hash.match(/^#demo(\d)$/);
+    if (!m || window.top !== window) return;
+    var nomes = { "1": "João da Pena de Deus", "2": "Maria das Dores Sentidas",
+                  "3": "Djalma Jacinto Pinto", "4": "Raimunda Subindo e Segunda" };
+    var n = m[1];
+    document.write(
+      '<style>' +
+      'html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 30%,#3a3f47,#15171b 70%);overflow:hidden;' +
+      'font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif}' +
+      '#cel{position:absolute;left:50%;top:8px;bottom:30px;width:min(392px,calc(100vw - 30px));transform:translateX(-50%);' +
+      'background:#0b0b0d;border-radius:48px;padding:11px;box-sizing:border-box;' +
+      'box-shadow:0 0 0 2px #4a4d53,0 0 0 4px #1c1d20,0 18px 40px rgba(0,0,0,.6)}' +
+      '#cel .bt{position:absolute;right:-6px;width:4px;background:#2c2e33;border-radius:0 3px 3px 0}' +
+      '#tela{position:relative;width:100%;height:100%;border-radius:38px;overflow:hidden;background:#000;display:flex;flex-direction:column}' +
+      '#status{height:30px;flex:0 0 30px;background:#9E3418;color:#fff;display:flex;align-items:center;justify-content:space-between;' +
+      'padding:0 22px;font:600 13px/1 system-ui,"Segoe UI",Arial,sans-serif;position:relative}' +
+      '#cam{position:absolute;left:50%;top:8px;width:13px;height:13px;margin-left:-6px;border-radius:50%;background:#050505;' +
+      'box-shadow:inset 0 0 0 2px #1a1a1a,inset 2px 2px 3px #2b3a55}' +
+      '#icones{display:flex;gap:6px;align-items:center;font-size:12px}' +
+      '#bat{width:22px;height:11px;border:1.5px solid #fff;border-radius:3px;position:relative;box-sizing:border-box}' +
+      '#bat:after{content:"";position:absolute;right:-4px;top:2px;width:2px;height:5px;background:#fff;border-radius:0 1px 1px 0}' +
+      '#bat i{position:absolute;left:1px;top:1px;bottom:1px;width:72%;background:#fff;border-radius:1px}' +
+      '#app{flex:1;width:100%;border:0;background:#F6EBD6;display:block}' +
+      '#baixo{height:22px;flex:0 0 22px;background:#F6EBD6;display:flex;align-items:center;justify-content:center}' +
+      '#baixo i{width:110px;height:4px;border-radius:3px;background:#2b1a12;opacity:.55}' +
+      '#nome{position:absolute;left:0;right:0;bottom:6px;text-align:center;color:#cfd2d8;font:600 12px/1 system-ui,Arial,sans-serif}' +
+      '</style>' +
+      '<div id="cel"><span class="bt" style="top:120px;height:56px"></span><span class="bt" style="top:190px;height:90px"></span>' +
+      '<div id="tela"><div id="status"><span id="hora">--:--</span><span id="cam"></span>' +
+      '<span id="icones"><span>📶</span><span id="bat"><i></i></span></span></div>' +
+      '<iframe id="app" title="Celular ' + n + '" allow="clipboard-write; clipboard-read; autoplay"></iframe>' +
+      '<div id="baixo"><i></i></div></div></div>' +
+      '<div id="nome">📱 Celular ' + n + ' – ' + (nomes[n] || '') + '</div>' +
+      '<plaintext style="display:none">');
+    setTimeout(function () {
+      document.title = 'Celular ' + n + ' – ' + (nomes[n] || 'Caçula');
+      var f = document.getElementById('app');
+      if (f) f.src = location.pathname + '#demo' + n + '-tela';
+      function hora() { var d = new Date(), h = document.getElementById('hora');
+        if (h) h.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+      hora(); setInterval(hora, 10000);
+    }, 0);
+  })();
+</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Caçula">
 <meta property="og:title" content="Caçula – Salgados &amp; Caldo de Cana">
@@ -657,7 +706,7 @@
   }
 
   // Demonstração: nome do "dono" deste celular virtual em cima da tela
-  if (DEMO) {
+  if (DEMO && window.top === window) {
     const et = document.createElement("div");
     et.textContent = "📱 Celular " + DEMO + " – " + (NOMES_DEMO[DEMO] || "Demonstração");
     et.style.cssText = "position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:2147483647;" +
