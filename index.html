@@ -577,6 +577,7 @@
 
   // ---------- Libras: avatar do VLibras (governo federal, gratuito). Só carrega quando a pessoa toca em "👋 Libras" ----------
   let librasCarregou = false;
+  let librasAtivo = false;   // com a Libras aberta, o vídeo não fecha sozinho: a pessoa toca em "Continuar"
   function janelaLibras(abrir) {
     if (abrir) { try { if (window.VLibrasWidget && window.VLibrasWidget.open) window.VLibrasWidget.open(); } catch (e) {} }
     const r = document.getElementById("vlibras-app-root");
@@ -589,12 +590,14 @@
       tentativas++;
       const r = document.getElementById("vlibras-app-root");
       const f = r && r.shadowRoot && r.shadowRoot.querySelector("iframe");
-      if (f) { const pronto = () => setTimeout(depois, 6000); if (f.dataset.ok) pronto(); else f.addEventListener("load", () => { f.dataset.ok = "1"; pronto(); }, { once: true }); return; }
+      if (f) { const pronto = () => setTimeout(depois, 8000); if (f.dataset.ok) pronto(); else f.addEventListener("load", () => { f.dataset.ok = "1"; pronto(); }, { once: true }); return; }
       if (tentativas < 120) setTimeout(olhar, 500);
     };
     olhar();
   }
   function abrirLibras(v) {
+    librasAtivo = true;
+    $("btnPularIntro").textContent = "Continuar ➜";
     esconder("btnLibras"); esconder("btnTocarIntro");
     mostrar("falaLibras");
     try { v.muted = true; if (v.paused) v.play().catch(() => {}); } catch (e) {}
@@ -609,7 +612,7 @@
     s.onerror = () => { librasCarregou = false; };   // sem internet para o VLibras: fica a legenda escrita
     document.head.appendChild(s);
   }
-  function fecharLibras() { janelaLibras(false); esconder("falaLibras"); }
+  function fecharLibras() { librasAtivo = false; janelaLibras(false); esconder("falaLibras"); }
 
   function mostrarIntro(arquivo) {
     const v = $("videoIntro");
@@ -629,13 +632,14 @@
       v.play().catch(() => { v.muted = true; v.play().catch(fechar); });
     };
     mostrar("intro");
+    $("btnPularIntro").textContent = "Pular";
     // Libras só no vídeo de boas-vindas (as saudações de bom dia/boa tarde/boa noite não têm o texto)
     if (arquivo) esconder("btnLibras"); else mostrar("btnLibras");
     $("btnLibras").onclick = () => abrirLibras(v);
     $("btnTocarIntro").addEventListener("click", tocar);
     v.addEventListener("click", () => { if (v.paused) tocar(); });
     $("btnPularIntro").addEventListener("click", fechar);
-    v.addEventListener("ended", () => setTimeout(fechar, 400));
+    v.addEventListener("ended", () => { if (!librasAtivo) setTimeout(fechar, 400); });
     v.addEventListener("error", fechar);
   }
 
