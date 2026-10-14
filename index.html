@@ -6,7 +6,7 @@
 <title>Caçula – Salgados &amp; Caldo de Cana</title>
 <meta name="description" content="Peça seus salgados da Caçula pelo celular.">
 <meta name="theme-color" content="#9E3418">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://script.google.com https://*.googleusercontent.com; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://vlibras.gov.br https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://vlibras.gov.br; img-src 'self' data: https://vlibras.gov.br https://cdn.jsdelivr.net; font-src 'self' https://vlibras.gov.br; frame-src https://script.google.com https://*.googleusercontent.com https://vlibras.gov.br; connect-src 'self' https://vlibras.gov.br https://*.vlibras.gov.br; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Caçula">
@@ -150,6 +150,15 @@
     box-shadow:0 8px 22px rgba(158,52,24,.35);cursor:pointer;white-space:nowrap}
   #intro .pular{position:absolute;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(255,255,255,.85);
     color:var(--terracota);border:2px solid var(--terracota);border-radius:999px;padding:7px 16px;font-weight:700;cursor:pointer}
+  /* ---------- Libras (VLibras): botão no vídeo da Rita + legenda ---------- */
+  #intro .libras{position:absolute;left:16px;top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(255,255,255,.85);
+    color:#1351B4;border:2px solid #1351B4;border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer}
+  #falaLibras{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:540px;margin:0 auto;
+    background:rgba(255,255,255,.96);border-radius:14px;padding:10px 14px;font-size:1rem;line-height:1.45;color:var(--tinta);
+    box-shadow:0 4px 14px rgba(0,0,0,.18);max-height:40vh;overflow-y:auto;cursor:pointer}
+  #falaLibras::after{content:"👆 Toque no texto para ver de novo em Libras";display:block;margin-top:6px;font-size:.85rem;
+    font-weight:700;color:#1351B4}
+  #vlibras-access-wrapper{display:none !important}
   :focus-visible{outline:3px solid var(--dourado);outline-offset:2px}
 </style>
 </head>
@@ -170,6 +179,8 @@
   </video>
   <button id="btnTocarIntro" class="tocar">▶ Toque para ouvir</button>
   <button id="btnPularIntro" class="pular">Pular</button>
+  <button id="btnLibras" class="libras oculto" aria-label="Ver a mensagem da Rita em Libras">👋 Libras</button>
+  <div id="falaLibras" class="oculto" role="note">Ei, ei! Lembram de mim? Mudei, mas meus salgados continuam a mesma delícia! E tem novidade: agora a Caçula está online, para facilitar a sua vida! Só não facilitei o mais difícil, que é comer um salgado só! Antes do pedido, faça o seu cadastro. É rapidinho! Seus dados ficam em sigilo, como manda a lei. Na próxima tela, marque: Li e concordo! Sem marcar, o cadastro não chega na fábrica. Marcou? Pronto! Agora é só pedir. Te espero!</div>
 </div>
 
 <!-- Guia com desenhos: como deixar a Caçula na tela do celular (depois do vídeo) -->
@@ -564,6 +575,42 @@
     return "noite";
   }
 
+  // ---------- Libras: avatar do VLibras (governo federal, gratuito). Só carrega quando a pessoa toca em "👋 Libras" ----------
+  let librasCarregou = false;
+  function janelaLibras(abrir) {
+    if (abrir) { try { if (window.VLibrasWidget && window.VLibrasWidget.open) window.VLibrasWidget.open(); } catch (e) {} }
+    const r = document.getElementById("vlibras-app-root");
+    if (r) r.dataset.active = abrir ? "true" : "false";
+  }
+  function traduzirFala() { const t = $("falaLibras"); if (t) t.click(); }
+  function esperarAvatar(depois) {   // espera o avatar terminar de carregar (a 1ª vez demora uns segundos)
+    let tentativas = 0;
+    const olhar = () => {
+      tentativas++;
+      const r = document.getElementById("vlibras-app-root");
+      const f = r && r.shadowRoot && r.shadowRoot.querySelector("iframe");
+      if (f) { const pronto = () => setTimeout(depois, 6000); if (f.dataset.ok) pronto(); else f.addEventListener("load", () => { f.dataset.ok = "1"; pronto(); }, { once: true }); return; }
+      if (tentativas < 120) setTimeout(olhar, 500);
+    };
+    olhar();
+  }
+  function abrirLibras(v) {
+    esconder("btnLibras"); esconder("btnTocarIntro");
+    mostrar("falaLibras");
+    try { v.muted = true; if (v.paused) v.play().catch(() => {}); } catch (e) {}
+    if (librasCarregou) { janelaLibras(true); setTimeout(traduzirFala, 800); return; }
+    librasCarregou = true;
+    const s = document.createElement("script");
+    s.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
+    s.onload = () => {
+      try { new window.VLibras.Widget("https://vlibras.gov.br/app"); } catch (e) {}
+      setTimeout(() => { janelaLibras(true); esperarAvatar(traduzirFala); }, 300);
+    };
+    s.onerror = () => { librasCarregou = false; };   // sem internet para o VLibras: fica a legenda escrita
+    document.head.appendChild(s);
+  }
+  function fecharLibras() { janelaLibras(false); esconder("falaLibras"); }
+
   function mostrarIntro(arquivo) {
     const v = $("videoIntro");
     if (arquivo) { v.poster = arquivo + ".jpg"; v.src = arquivo + ".mp4"; v.load(); }
@@ -571,6 +618,7 @@
     const fechar = () => {
       if (fechado) return; fechado = true;
       try { v.pause(); } catch (e) {}
+      fecharLibras();
       $("intro").classList.add("sumindo");
       setTimeout(() => esconder("intro"), 500);
       // depois do vídeo segue direto para o cadastro (LGPD); o convite para instalar só vem depois do 1º pedido
@@ -581,6 +629,9 @@
       v.play().catch(() => { v.muted = true; v.play().catch(fechar); });
     };
     mostrar("intro");
+    // Libras só no vídeo de boas-vindas (as saudações de bom dia/boa tarde/boa noite não têm o texto)
+    if (arquivo) esconder("btnLibras"); else mostrar("btnLibras");
+    $("btnLibras").onclick = () => abrirLibras(v);
     $("btnTocarIntro").addEventListener("click", tocar);
     v.addEventListener("click", () => { if (v.paused) tocar(); });
     $("btnPularIntro").addEventListener("click", fechar);

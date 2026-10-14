@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caçula – Salgados &amp; Caldo de Cana</title>
+<meta name="description" content="Peça seus salgados da Caçula pelo celular.">
+<meta name="theme-color" content="#9E3418">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://script.google.com https://*.googleusercontent.com; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Caçula">
+<meta property="og:title" content="Caçula – Salgados &amp; Caldo de Cana">
+<meta property="og:description" content="Peça seus salgados pelo app oficial da Caçula. Cariacica – ES.">
+<meta property="og:url" content="https://caculaempresa-sudo.github.io/">
+<meta property="og:image" content="https://caculaempresa-sudo.github.io/icone-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:locale" content="pt_BR">
+<script>
+  // O Samsung Internet transforma o site num "app" antigo que o Google Play Protect bloqueia ("App de risco").
+  // Por isso, só os outros navegadores recebem o manifesto; no Samsung fica um atalho comum, sem instalação.
+  if (!/SamsungBrowser/i.test(navigator.userAgent)) {
+    var m = document.createElement("link"); m.rel = "manifest"; m.href = "manifest.webmanifest";
+    document.head.appendChild(m);
+  }
+</script>
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caçula">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root{
+    --creme:#F6EBD6; --terracota:#9E3418; --terracota-escuro:#7A2710;
+    --dourado:#E9A23B; --tinta:#2B1A12; --suave:#6B5446;
+    box-sizing:border-box;
+  }
+  *{box-sizing:inherit}
+  html,body{margin:0;height:100%;background:var(--creme);color:var(--tinta);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .tela{min-height:100%;display:none}
+  .tela.ativa{display:block}
+
+  /* ---------- tela de entrada ---------- */
+  #inicio{padding:calc(env(safe-area-inset-top,0px) + 28px) 22px calc(env(safe-area-inset-bottom,0px) + 28px);
+    max-width:460px;margin:0 auto;text-align:center}
+  .icone{width:112px;height:112px;border-radius:26px;box-shadow:0 8px 24px rgba(122,39,16,.25)}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:2.3rem;margin:18px 0 2px;color:var(--terracota)}
+  .sub{margin:0 0 6px;color:var(--suave);font-size:1rem}
+  .local{margin:0 0 26px;color:var(--terracota-escuro);font-weight:600;letter-spacing:.04em;font-size:.82rem;text-transform:uppercase}
+  .botao{display:block;width:100%;border:0;border-radius:16px;padding:17px 18px;font-size:1.12rem;font-weight:700;
+    cursor:pointer;margin:12px 0;text-decoration:none}
+  .botao.principal{background:var(--terracota);color:#fff;box-shadow:0 6px 16px rgba(158,52,24,.3)}
+  .botao.secundario{background:#fff;color:var(--terracota);border:2px solid var(--terracota)}
+  .aviso{background:#fff;border-radius:16px;padding:16px 18px;margin:16px 0;text-align:left;
+    border-left:6px solid var(--dourado);font-size:1rem;line-height:1.45}
+  .aviso b{color:var(--terracota)}
+  .aviso .nota{display:block;margin-top:8px;font-size:.9rem;color:var(--suave)}
+  .oculto{display:none !important}
+  .rodape{margin-top:26px;font-size:.85rem;color:var(--suave)}
+  .seguro{background:#fff;border-radius:16px;padding:14px 16px;margin:18px 0 0;text-align:left;font-size:.92rem;line-height:1.45;
+    border:1px solid #E6D5B8}
+  .seguro h2{font-size:1rem;margin:0 0 6px;color:var(--terracota)}
+  .seguro ul{margin:0;padding-left:1.1em}
+  .seguro li{margin:3px 0}
+  .empresa{margin-top:18px;font-size:.8rem;color:var(--suave);line-height:1.5}
+
+  /* ---------- tela do cardápio ---------- */
+  #cardapio{position:fixed;inset:0;flex-direction:column}
+  #cardapio.ativa{display:flex}
+  .barra{display:flex;align-items:center;gap:10px;background:var(--terracota);color:#fff;
+    padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px}
+  .barra img{width:30px;height:30px;border-radius:8px}
+  .barra .nome{font-family:Georgia,serif;font-size:1.15rem;font-weight:700;flex:1}
+  .barra button{background:var(--dourado);color:var(--tinta);border:0;border-radius:999px;padding:7px 13px;
+    font-weight:700;font-size:.9rem;cursor:pointer}
+  iframe{flex:1;width:100%;border:0;background:#fff}
+  .dica{display:flex;gap:10px;align-items:flex-start;background:#FFF6E0;border-bottom:1px solid #E6D5B8;
+    padding:10px 12px;font-size:.88rem;line-height:1.4}
+  .dica button{margin-left:auto;background:var(--terracota);color:#fff;border:0;border-radius:10px;
+    padding:6px 12px;font-weight:700;cursor:pointer;flex:none}
+  .reserva{background:var(--creme);text-align:center;padding:6px 10px calc(env(safe-area-inset-bottom,0px) + 6px);font-size:.82rem}
+  .reserva a{color:var(--terracota);font-weight:600}
+
+  /* ---------- convite depois do pedido ---------- */
+  #convite{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+    background:#fff;border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:10}
+  #convite p{margin:0 0 10px;font-size:1rem;line-height:1.4}
+  #convite .linha{display:flex;gap:10px}
+  #convite .linha .botao{margin:0;padding:12px;font-size:1rem}
+  /* ---------- tela de abertura (app instalado) ---------- */
+  #abertura{position:fixed;inset:0;z-index:20;background:var(--creme);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:24px;transition:opacity .45s ease}
+  #abertura.sumindo{opacity:0}
+  #abertura img{width:132px;height:132px;border-radius:30px;box-shadow:0 8px 24px rgba(122,39,16,.25)}
+  #abertura h1{margin:18px 0 4px}
+  #abertura .slogan{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:1.35rem;
+    color:var(--terracota-escuro);max-width:320px;line-height:1.35;margin:10px 0 0}
+  @media (prefers-reduced-motion: reduce){#abertura{transition:none}}
+  /* ---------- guia "Deixe a Caçula no seu celular" ---------- */
+  #guia{position:fixed;inset:0;z-index:25;background:var(--creme);overflow-y:auto;
+    padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
+  #guia .caixa{max-width:460px;margin:0 auto}
+  #guia h2{font-family:Georgia,serif;color:var(--terracota);font-size:1.45rem;margin:4px 0 6px;text-align:center}
+  #guia .so1{background:#fff;border-radius:14px;padding:12px 14px;margin:8px 0 12px;line-height:1.45;
+    border-left:6px solid var(--dourado);font-size:1rem}
+  #guia .so1 b{color:var(--terracota)}
+  .passo{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:10px 12px;margin:10px 0;
+    box-shadow:0 2px 8px rgba(122,39,16,.08)}
+  .passo .txt{flex:1;font-size:1.02rem;line-height:1.4}
+  .passo .txt b{color:var(--terracota)}
+  .passo .n{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--terracota);color:#fff;
+    align-items:center;justify-content:center;font-weight:700;margin-bottom:4px}
+  .tel{width:92px;height:150px;border:3px solid var(--tinta);border-radius:16px;position:relative;background:#f4f4f4;
+    flex:none;overflow:hidden;font-size:9px;color:#333}
+  .tel .topo{height:22px;background:#e2e2e2;display:flex;align-items:center;padding:0 6px;gap:4px}
+  .tel .topo .end{flex:1;height:10px;background:#fff;border-radius:6px}
+  .tel .baixo{position:absolute;left:0;right:0;bottom:0;height:24px;background:#e2e2e2;display:flex;
+    justify-content:space-around;align-items:center;font-size:12px}
+  .tel .ico{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+  .alvo{border-radius:50%;box-shadow:0 0 0 3px var(--dourado);animation:pulsa 1.1s ease-in-out infinite}
+  @keyframes pulsa{50%{box-shadow:0 0 0 6px rgba(233,162,59,.35)}}
+  .tel .menu{position:absolute;left:8px;right:6px;background:#fff;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,.25);
+    padding:3px 0}
+  .tel .menu div{padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tel .menu .dest{white-space:normal;line-height:1.15;background:#FFE3AE;font-weight:700;color:var(--terracota-escuro);box-shadow:inset 3px 0 0 var(--dourado)}
+  .tel .linhas div{height:6px;margin:7px 8px;background:#ddd;border-radius:3px}
+  .tel .dialogo{position:absolute;left:6px;right:6px;bottom:30px;background:#fff;border-radius:10px;padding:6px;
+    box-shadow:0 3px 10px rgba(0,0,0,.3);text-align:center}
+  .tel .dialogo .bt{display:inline-block;margin-top:4px;padding:3px 8px;border-radius:8px;background:var(--terracota);color:#fff;font-weight:700}
+  .tel .home{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 8px}
+  .tel .home span{width:20px;height:20px;border-radius:6px;background:#cfd8dc;justify-self:center}
+  .tel .home .meu{grid-column:2;width:26px;height:26px;border-radius:7px;background:url(icone-192.png) center/cover;
+    box-shadow:0 0 0 3px var(--dourado);animation:pulsa 1.1s ease-in-out infinite}
+  .tel .home .rot{grid-column:1/4;text-align:center;font-weight:700;color:var(--terracota);margin-top:-4px}
+  #guia .acoes{margin-top:14px}
+  #guia .acoes .botao{margin:10px 0}
+  #guia .pular-info{background:#FFF6E0;border-radius:12px;padding:10px 12px;font-size:.95rem;line-height:1.4;color:var(--tinta);margin:4px 0 0}
+  #guia .pular-info b{color:var(--terracota)}
+  #guia .depois{display:block;margin:6px auto 0;background:none;border:0;color:var(--suave);font-size:.95rem;text-decoration:underline;cursor:pointer}
+  @media (prefers-reduced-motion: reduce){.alvo,.tel .home .meu{animation:none}}
+  /* ---------- vídeo da Rita Caçula (até o cliente fazer o cadastro) ---------- */
+  #intro{position:fixed;inset:0;z-index:30;background:var(--creme);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;transition:opacity .5s ease}
+  #intro.sumindo{opacity:0}
+  #intro video{width:100%;height:100%;max-width:560px;object-fit:contain;background:var(--creme)}
+  #intro .tocar{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);
+    background:var(--terracota);color:#fff;border:0;border-radius:999px;padding:16px 26px;font-size:1.15rem;font-weight:700;
+    box-shadow:0 8px 22px rgba(158,52,24,.35);cursor:pointer;white-space:nowrap}
+  #intro .pular{position:absolute;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(255,255,255,.85);
+    color:var(--terracota);border:2px solid var(--terracota);border-radius:999px;padding:7px 16px;font-weight:700;cursor:pointer}
+  :focus-visible{outline:3px solid var(--dourado);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<!-- Tela de abertura: aparece por 2 segundos quando o cliente toca no ícone -->
+<div id="abertura" class="oculto" aria-hidden="true">
+  <img src="icone-192.png" alt="">
+  <h1>Caçula</h1>
+  <p class="sub">Salgados &amp; Caldo de Cana</p>
+  <p id="sloganAbertura" class="slogan"></p>
+</div>
+
+<!-- Vídeo da Rita Caçula: aparece ao abrir o app até o cliente terminar o cadastro -->
+<div id="intro" class="oculto" role="dialog" aria-label="Boas-vindas da Caçula">
+  <video id="videoIntro" playsinline preload="auto" poster="rita-cacula.jpg">
+    <source src="rita-cacula.mp4" type="video/mp4">
+  </video>
+  <button id="btnTocarIntro" class="tocar">▶ Toque para ouvir</button>
+  <button id="btnPularIntro" class="pular">Pular</button>
+</div>
+
+<!-- Guia com desenhos: como deixar a Caçula na tela do celular (depois do vídeo) -->
+<div id="guia" class="oculto" role="dialog" aria-label="Deixe a Caçula no seu celular">
+  <div class="caixa">
+    <h2>📲 Deixe a Caçula no seu celular</h2>
+    <div class="so1">Isso é feito <b>só desta vez</b>. Vai aparecer o <b>ícone da Caçula</b> na tela do seu celular,
+      junto com os seus aplicativos. Nos próximos pedidos é só <b>tocar no ícone</b> — não precisa procurar o link
+      no WhatsApp. Não instala programa nem ocupa espaço.</div>
+    <div id="guiaPassos"></div>
+    <div class="acoes">
+      <button id="btnGuiaUmToque" class="botao principal oculto">📲 Colocar a Caçula no meu celular</button>
+      <button id="btnGuiaPronto" class="botao secundario">✔ Pronto, já coloquei</button>
+      <button id="btnGuiaDepois" class="botao secundario">⏭ Pular e fazer meu pedido</button>
+    </div>
+    <p class="pular-info">Não quer colocar o ícone? <b>Sem problema!</b> Toque em <b>“Pular”</b> e faça seus pedidos
+      sempre pelo <b>link que enviamos no seu WhatsApp</b>. Funciona do mesmo jeito.</p>
+  </div>
+</div>
+
+<!-- Tela de entrada: aparece quando o link é aberto no navegador -->
+<section id="inicio" class="tela" aria-label="Boas-vindas">
+  <img class="icone" src="icone-192.png" alt="Ícone da Caçula">
+  <h1>Caçula</h1>
+  <p class="sub">Salgados &amp; Caldo de Cana</p>
+  <p class="local">Tradição 100% Cariacica – ES</p>
+
+  <div id="avisoInstagram" class="aviso oculto">
+    <b>Abra no navegador para instalar.</b><br>
+    Toque nos <b>três pontinhos ⋯</b> no canto da tela e escolha <b>“Abrir no navegador”</b>.
+  </div>
+
+  <button id="btnInstalar" class="botao principal oculto">📲 Instalar o app da Caçula</button>
+
+  <div id="avisoIphone" class="aviso oculto">
+    <b>Para ter o ícone da Caçula no iPhone:</b><br>
+    1. Toque em <b>Compartilhar</b> <span aria-hidden="true">⬆️</span> (embaixo da tela).<br>
+    2. Toque em <b>“Adicionar à Tela de Início”</b>.
+  </div>
+
+  <div id="avisoAndroid" class="aviso oculto">
+    <b>Para ter o ícone da Caçula (sem instalar nada):</b><br>
+    1. Toque nos <b>três pontinhos ⋮</b> no canto de cima do navegador.<br>
+    2. Toque em <b>“Adicionar à tela inicial”</b>.<br>
+    3. Se aparecer a escolha, toque em <b>“Criar atalho”</b> e depois em <b>“Adicionar”</b>.<br>
+    <span class="nota">Se o celular mostrar um aviso de <b>“risco”</b> ao tentar instalar, fique tranquilo:
+    é só a proteção do celular para apps que não vêm da Play Store. Use o atalho acima, que não instala nada
+    e funciona igualzinho.</span>
+  </div>
+
+  <div id="avisoSamsung" class="aviso oculto">
+    <b>Para ter o ícone da Caçula (sem instalar nada):</b><br>
+    1. Toque no <b>menu ☰</b> (três tracinhos, embaixo à direita).<br>
+    2. Toque em <b>“Adicionar página a”</b>.<br>
+    3. Toque em <b>“Tela inicial”</b> e depois em <b>“Adicionar”</b>.<br>
+    <span class="nota">Se o celular mostrar um aviso de <b>“risco”</b>, fique tranquilo: é só a proteção do celular
+    para apps que não vêm da Play Store. Esse caminho não instala nada e funciona igualzinho.</span>
+  </div>
+
+  <div id="avisoPC" class="aviso oculto">
+    <b>No computador também funciona:</b><br>
+    clique no ícone de <b>instalar</b> na barra de endereço do Chrome ou do Edge
+    (ou em <b>⋮ → Instalar Caçula</b>) e o app abre numa janela própria.
+  </div>
+
+  <button id="btnPedir" class="botao secundario">🛒 Fazer meu pedido agora</button>
+
+  <p class="rodape">Pedidos de salgados para retirada e entrega.<br>Pagamento em dinheiro ou PIX.</p>
+
+  <section class="seguro" aria-label="Segurança">
+    <h2>🔒 App oficial e seguro</h2>
+    <ul>
+      <li>Não baixa nenhum arquivo nem programa: é só um atalho para o nosso cardápio.</li>
+      <li>Não pede senha, cartão nem acesso a fotos, contatos ou localização.</li>
+      <li><b>CPF ou CNPJ:</b> é pedido só no seu cadastro, para identificar você e evitar cadastro em nome de outra
+          pessoa. Fica guardado em sigilo, conforme a LGPD.</li>
+      <li><b>Bem levinho:</b> o app tem cerca de 1 MB (quase tudo é o vídeo curtinho de boas-vindas),
+          menos que um áudio do WhatsApp. Um aplicativo comum de loja ocupa centenas de vezes mais.</li>
+      <li>Não fica rodando escondido, não gasta bateria nem internet quando está fechado.</li>
+      <li>Para tirar, é só segurar o ícone e escolher <b>Remover</b> ou <b>Desinstalar</b>, como qualquer app.</li>
+      <li>Sem propaganda de terceiros e sem rastreadores: só a Caçula aparece aqui.</li>
+      <li>Nosso cardápio fica no Google. Por isso, no alto dele, pode aparecer uma <b>faixa cinza do Google</b>
+          dizendo que o aplicativo foi criado por um usuário. É um aviso normal do Google,
+          <b>não é vírus nem propaganda</b>: pode fazer seu pedido tranquilo.</li>
+      <li>Endereço com cadeado (https): a conexão é protegida.</li>
+      <li>No PIX, confira sempre o nome do recebedor antes de pagar.</li>
+      <li>Dúvidas? Fale com a gente pelo WhatsApp oficial da Caçula.</li>
+    </ul>
+  </section>
+
+  <p class="empresa">Cacula Salgaderia LTDA · CNPJ 15.650.163/0001-97<br>
+  Caldo de Cana Caçula · Cariacica – ES<br>
+  Seus dados (nome, CPF/CNPJ, WhatsApp e endereço) são usados só para identificar você e entregar o seu pedido.<br>
+  Ficam guardados em sigilo e não são passados para ninguém, conforme a LGPD (Lei 13.709/2018).<br>
+  Você pode pedir para ver, corrigir ou apagar seus dados pelo nosso WhatsApp oficial.</p>
+</section>
+
+<!-- Tela do cardápio: abre direto quando o cliente toca no ícone -->
+<section id="cardapio" class="tela" aria-label="Cardápio">
+  <div class="barra">
+    <img src="icone-192.png" alt="">
+    <span class="nome">Caçula</span>
+    <button id="btnInstalarBarra" class="oculto">📲 Instalar</button>
+  </div>
+  <div id="dicaGoogle" class="dica oculto">
+    <span>ℹ️ Se aparecer uma <b>faixa cinza do Google</b> no alto do cardápio, fique tranquilo:
+    é um aviso normal do Google, não é vírus nem propaganda.</span>
+    <button id="btnEntendi">Entendi</button>
+  </div>
+  <iframe id="quadro" title="Cardápio da Caçula" allow="clipboard-write; clipboard-read"></iframe>
+  <div class="reserva">O cardápio não apareceu? <a id="linkReserva" href="#">Toque aqui</a></div>
+</section>
+
+<!-- Convite para instalar, mostrado depois do primeiro pedido -->
+<div id="convite" class="oculto" role="dialog" aria-label="Instalar o app">
+  <p id="conviteTexto"><b>Pedido recebido! 🎉</b><br>Quer o ícone da Caçula no seu celular para pedir mais rápido da próxima vez?</p>
+  <div class="linha">
+    <button id="btnConviteSim" class="botao principal">Quero</button>
+    <button id="btnConviteNao" class="botao secundario">Agora não</button>
+  </div>
+</div>
+
+<script>
+  // Endereço do cardápio online (Apps Script da conta da empresa)
+  const CARDAPIO = "https://script.google.com/macros/s/AKfycbze0PlYjR7VxK1BeebicO2ejmPpTnzVfVOcjA6etmKre4TNSkRE4MQwCZX76XQXwAoxaQ/exec";
+
+  const ua = navigator.userAgent || "";
+  // MODO DEMONSTRAÇÃO (só pelos atalhos "Celular Virtual" do computador: endereço termina em #demo1 ... #demo4)
+  const DEMO = (location.hash.match(/^#demo(\d)/) || [])[1] || "";
+  const NOMES_DEMO = { "1": "João da Pena de Deus", "2": "Maria das Dores Sentidas",
+                       "3": "Djalma Jacinto Pinto", "4": "Raimunda Subindo e Segunda" };
+  const instalado = !DEMO && window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  // Aberto pelo atalho da tela inicial (o endereço do atalho termina em #icone): funciona como o app instalado
+  let jaVisitou = false;
+  try { jaVisitou = localStorage.getItem("cacula_visitou") === "1"; } catch (e) {}
+  // No celular, abre sempre como app (vídeo da Rita → guia do ícone → cardápio), pelo ícone ou pelo link
+  const pelaTela = instalado || !!DEMO || location.hash === "#icone" || ehCelularCedo();
+  function ehCelularCedo() { return /Android|iPhone|iPad|iPod|Mobile/.test(ua) && !/Instagram|FBAN|FBAV|FB_IAB|Line\//.test(ua); }
+  const ehSamsungInternet = /SamsungBrowser/i.test(ua);
+  // Celulares Samsung costumam barrar a instalação ("risco"): para eles, só o atalho
+  const ehSamsung = /Samsung|SM-[A-Z0-9]/i.test(ua);
+  const ehIphone = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const dentroDeApp = /Instagram|FBAN|FBAV|FB_IAB|Line\//.test(ua);
+  const ehCelular = /Android|iPhone|iPad|iPod|Mobile/.test(ua) || ehIphone;
+  // Link pessoal do cliente (o que vem depois do "?"): guarda no celular para o ícone já abrir identificado
+  let complemento = location.search || "";
+  try {
+    if (complemento) localStorage.setItem("cacula_link_pessoal", complemento);
+    else complemento = localStorage.getItem("cacula_link_pessoal") || "";
+  } catch (e) {}
+  // Celular Virtual: avisa o cardápio (?demo=N) para mostrar o tecladinho de celular no cadastro
+  const enderecoCardapio = CARDAPIO + complemento + (DEMO ? (complemento ? "&" : "?") + "demo=" + DEMO : "");
+  let pedidoInstalacao = null;
+
+  const $ = (id) => document.getElementById(id);
+  const mostrar = (id) => $(id).classList.remove("oculto");
+  const esconder = (id) => $(id).classList.add("oculto");
+
+  function abrirTela(nome) {
+    document.querySelectorAll(".tela").forEach((t) => t.classList.remove("ativa"));
+    $(nome).classList.add("ativa");
+    if (nome === "cardapio" && !$("quadro").src) $("quadro").src = enderecoCardapio;
+    if (nome === "cardapio") {
+      let viu = false;
+      try { viu = localStorage.getItem("cacula_dica_google") === "1"; } catch (e) {}
+      if (!viu) mostrar("dicaGoogle");
+    }
+  }
+
+  async function instalar() {
+    if (ehCelular && !dentroDeApp && !instalado) { mostrarGuia(); return; }
+    if (pedidoInstalacao) {
+      pedidoInstalacao.prompt();
+      await pedidoInstalacao.userChoice;
+      pedidoInstalacao = null;
+      esconder("btnInstalar"); esconder("btnInstalarBarra");
+    } else if (ehIphone) {
+      abrirTela("inicio"); mostrar("avisoIphone");
+    } else {
+      abrirTela("inicio");
+      mostrar(ehCelular ? (ehSamsungInternet ? "avisoSamsung" : "avisoAndroid") : "avisoPC");
+      window.scrollTo(0, 0);
+    }
+  }
+
+  // Android/Chrome: o navegador avisa que dá para instalar
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    pedidoInstalacao = e;
+    if (!pelaTela && !DEMO && !ehSamsungInternet) { mostrar("btnInstalar"); mostrar("btnInstalarBarra"); }
+  });
+  window.addEventListener("appinstalled", () => {
+    try { localStorage.setItem("cacula_icone_ok", "1"); } catch (e) {}
+    esconder("guia");
+    esconder("btnInstalar"); esconder("btnInstalarBarra"); esconder("convite");
+  });
+
+  // O cardápio pode avisar que o pedido foi enviado (opcional, ver LEIA-ME)
+  window.addEventListener("message", (e) => {
+    let origemOk = false;
+    try { origemOk = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname); } catch (err) {}
+    if (origemOk && e.data === "cacula:pedido-enviado") {
+      let ok = false; try { ok = localStorage.getItem("cacula_icone_ok") === "1"; } catch (err) {}
+      if (DEMO) setTimeout(mostrarGuiaDemo, 2500);   // demonstração: só a explicação, sem baixar nada
+      else if (!iconeJaColocado() && !instalado && !dentroDeApp && (ehCelular || pedidoInstalacao)) setTimeout(mostrarConvite, 2500);
+    }
+    // O cardápio avisa que o cliente já tem cadastro: o vídeo da Rita não aparece mais
+    if (origemOk && e.data === "cacula:cadastrado") {
+      try { localStorage.setItem("cacula_cadastrado", "1"); } catch (err) {}
+    }
+  });
+
+  $("btnPedir").addEventListener("click", () => {
+    abrirTela("cardapio");
+    if (!jaCadastrado()) mostrarIntro();   // computador: cliente novo vê o vídeo da Rita antes do cadastro
+  });
+  $("btnInstalar").addEventListener("click", instalar);
+  $("btnInstalarBarra").addEventListener("click", instalar);
+  $("btnConviteSim").addEventListener("click", () => { esconder("convite"); instalar(); });
+  $("btnConviteNao").addEventListener("click", () => {
+    try { localStorage.setItem("cacula_icone_adiado", String(Date.now())); } catch (e) {}
+    esconder("convite");
+  });
+  function mostrarConvite() {
+    $("conviteTexto").innerHTML = ehCelular
+      ? "<b>Pedido recebido! 🎉</b><br>Quer o ícone da Caçula no seu celular para pedir mais rápido da próxima vez?"
+      : "<b>Pedido recebido! 🎉</b><br>Quer instalar o app da Caçula neste computador para pedir mais rápido da próxima vez?";
+    mostrar("convite");
+  }
+  $("btnEntendi").addEventListener("click", () => {
+    esconder("dicaGoogle");
+    try { localStorage.setItem("cacula_dica_google", "1"); } catch (e) {}
+  });
+  $("linkReserva").addEventListener("click", (e) => { e.preventDefault(); location.href = enderecoCardapio; });
+
+  // Slogans da Caçula: um diferente a cada abertura do app
+  const SLOGANS = [
+    "Pequena no nome, grande no sabor!",
+    "A caçula que todo Capixaba conhece.",
+    "Salgado com sabor e caldo com frescor.",
+    "Caçula: mal PIXcou, já dá vontade de dar outra PIXcadinha!",
+    "100% Capixaba, mais 100% Cariacica!",
+    "Mão na massa todo dia, sabor na sua mesa!",
+    "Salgado Caçula: amor à primeira mordida!"
+  ];
+  function mostrarAbertura() {
+    let ultimo = -1;
+    try { ultimo = parseInt(localStorage.getItem("cacula_ultimo_slogan") || "-1", 10); } catch (e) {}
+    let i = Math.floor(Math.random() * SLOGANS.length);
+    if (i === ultimo) i = (i + 1) % SLOGANS.length;          // não repete o da última vez
+    try { localStorage.setItem("cacula_ultimo_slogan", String(i)); } catch (e) {}
+    $("sloganAbertura").textContent = SLOGANS[i];
+    mostrar("abertura");
+    const fechar = () => {
+      $("abertura").classList.add("sumindo");
+      setTimeout(() => esconder("abertura"), 450);
+    };
+    $("abertura").addEventListener("click", fechar, { once: true });   // tocar pula a abertura
+    setTimeout(fechar, 2000);
+  }
+
+  // ---------- Guia com desenhos para deixar a Caçula na tela do celular ----------
+  function iconeJaColocado() {
+    if (instalado) return true;
+    try {
+      if (localStorage.getItem("cacula_icone_ok") === "1") return true;
+      const adiado = parseInt(localStorage.getItem("cacula_icone_adiado") || "0", 10);
+      if (adiado && Date.now() - adiado < 3 * 24 * 3600 * 1000) return true;   // "agora não": pergunta de novo em 3 dias
+    } catch (e) {}
+    return false;
+  }
+  const TEL = {
+    chromeMenu: '<div class="tel"><div class="topo"><span class="end"></span><span class="ico alvo">⋮</span></div><div class="linhas"><div></div><div></div><div></div></div></div>',
+    chromeItem: '<div class="tel"><div class="topo"><span class="end"></span><span class="ico">⋮</span></div><div class="menu" style="top:24px"><div>Nova guia</div><div>Favoritos</div><div class="dest">Adicionar à tela inicial</div><div>Configurações</div></div></div>',
+    chromeOk: '<div class="tel"><div class="linhas"><div></div><div></div></div><div class="dialogo">Adicionar à tela inicial?<br><span class="bt">Instalar</span></div></div>',
+    umToque: '<div class="tel"><div class="linhas"><div></div><div></div></div><div class="dialogo">Instalar app?<br><b>Caçula</b><br><span class="bt">Instalar</span></div></div>',
+    samMenu: '<div class="tel"><div class="topo"><span class="end"></span></div><div class="linhas"><div></div><div></div></div><div class="baixo"><span>‹</span><span>›</span><span>⌂</span><span class="ico alvo">☰</span></div></div>',
+    samItem: '<div class="tel"><div class="menu" style="bottom:28px"><div>Favoritos</div><div class="dest">Adicionar página a</div><div>Downloads</div></div><div class="baixo"><span>‹</span><span>›</span><span>⌂</span><span class="ico">☰</span></div></div>',
+    samTela: '<div class="tel"><div class="menu" style="bottom:28px"><div>Favoritos</div><div class="dest">Tela inicial</div><div>Atalhos rápidos</div></div><div class="baixo"><span>‹</span><span>›</span><span>⌂</span><span class="ico">☰</span></div></div>',
+    iosShare: '<div class="tel"><div class="topo"><span class="end"></span></div><div class="linhas"><div></div><div></div></div><div class="baixo"><span>‹</span><span>›</span><span class="ico alvo">⬆</span><span>▢</span></div></div>',
+    iosItem: '<div class="tel"><div class="menu" style="bottom:28px"><div>Copiar</div><div>Favoritos</div><div class="dest">Adicionar à Tela de Início</div></div><div class="baixo"><span>‹</span><span>›</span><span class="ico">⬆</span><span>▢</span></div></div>',
+    iosOk: '<div class="tel"><div class="topo" style="justify-content:flex-end;font-weight:700;color:#1a73e8"><span class="alvo" style="padding:0 3px">Adicionar</span></div><div class="linhas"><div></div><div></div></div></div>',
+    home: '<div class="tel"><div class="home"><span></span><span></span><span></span><span></span><span></span><span></span><span class="meu"></span><span class="rot">Caçula</span></div></div>'
+  };
+  function passo(n, tel, texto) {
+    return '<div class="passo">' + TEL[tel] + '<div class="txt"><span class="n">' + n + '</span><br>' + texto + '</div></div>';
+  }
+  function montarGuia() {
+    let h = "";
+    esconder("btnGuiaUmToque");
+    if (pedidoInstalacao && !ehSamsungInternet) {
+      mostrar("btnGuiaUmToque");
+      h = passo(1, "umToque", 'Toque no botão <b>“Colocar a Caçula no meu celular”</b> aqui embaixo e depois em <b>“Instalar”</b>.') +
+          passo(2, "home", 'Pronto! O <b>ícone da Caçula</b> aparece na tela do seu celular.');
+    } else if (ehIphone) {
+      h = passo(1, "iosShare", 'Toque no botão <b>Compartilhar</b> ⬆️ (embaixo da tela).') +
+          passo(2, "iosItem", 'Role a lista e toque em <b>“Adicionar à Tela de Início”</b>.') +
+          passo(3, "iosOk", 'Toque em <b>“Adicionar”</b>, no canto de cima.') +
+          passo(4, "home", 'Pronto! O <b>ícone da Caçula</b> aparece na tela do seu celular.');
+    } else if (ehSamsungInternet) {
+      h = passo(1, "samMenu", 'Toque no <b>menu ☰</b> (três tracinhos, embaixo à direita).') +
+          passo(2, "samItem", 'Toque em <b>“Adicionar página a”</b>.') +
+          passo(3, "samTela", 'Toque em <b>“Tela inicial”</b> e depois em <b>“Adicionar”</b>.') +
+          passo(4, "home", 'Pronto! O <b>ícone da Caçula</b> aparece na tela do seu celular.');
+    } else {
+      h = passo(1, "chromeMenu", 'Toque nos <b>três pontinhos ⋮</b> (no canto de cima, à direita).') +
+          passo(2, "chromeItem", 'Toque em <b>“Adicionar à tela inicial”</b>.') +
+          passo(3, "chromeOk", 'Toque em <b>“Instalar”</b> ou <b>“Adicionar”</b> (se perguntar, escolha <b>“Criar atalho”</b>).') +
+          passo(4, "home", 'Pronto! O <b>ícone da Caçula</b> aparece na tela do seu celular.');
+    }
+    $("guiaPassos").innerHTML = h;
+  }
+  function mostrarGuia() {
+    if (!ehCelular || dentroDeApp || instalado) return;
+    montarGuia();
+    mostrar("guia");
+    $("guia").scrollTop = 0;
+  }
+  function fecharGuia() { esconder("guia"); }
+  // Demonstração: depois do pedido, mostra só a explicação de como colocar o app no celular (sem botão de baixar)
+  function mostrarGuiaDemo() {
+    const guardado = pedidoInstalacao;
+    pedidoInstalacao = null;
+    montarGuia();
+    pedidoInstalacao = guardado;
+    esconder("btnGuiaUmToque");
+    esconder("btnGuiaDepois");
+    $("btnGuiaPronto").textContent = "✔ Entendi";
+    const info = document.querySelector("#guia .pular-info");
+    if (info) info.style.display = "none";
+    mostrar("guia");
+    $("guia").scrollTop = 0;
+  }
+  $("btnGuiaUmToque").addEventListener("click", async () => {
+    if (!pedidoInstalacao) { montarGuia(); return; }
+    pedidoInstalacao.prompt();
+    const r = await pedidoInstalacao.userChoice.catch(() => null);
+    pedidoInstalacao = null;
+    if (r && r.outcome === "accepted") {
+      try { localStorage.setItem("cacula_icone_ok", "1"); } catch (e) {}
+      fecharGuia();
+    } else montarGuia();
+  });
+  $("btnGuiaPronto").addEventListener("click", () => {
+    try { localStorage.setItem("cacula_icone_ok", "1"); } catch (e) {}
+    fecharGuia();
+  });
+  $("btnGuiaDepois").addEventListener("click", () => {
+    try { localStorage.setItem("cacula_icone_adiado", String(Date.now())); } catch (e) {}
+    fecharGuia();
+  });
+
+  // Vídeo da Rita Caçula: só enquanto o cliente ainda não fez o cadastro
+  function jaCadastrado() {
+    try { return localStorage.getItem("cacula_cadastrado") === "1"; } catch (e) { return false; }
+  }
+  // ---------- Fábrica fechada: saudação da Rita (só para cliente JÁ cadastrado) ----------
+  // Fechada = sábado, domingo, feriado, ou dia útil fora das 5h às 16h (horário de Brasília/ES)
+  const HORA_ABRE = 5, HORA_FECHA = 16;
+  function pascoa(ano) {
+    const a = ano % 19, b = Math.floor(ano / 100), c = ano % 100, d = Math.floor(b / 4), e = b % 4,
+          f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
+          i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+          mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return Date.UTC(ano, mes - 1, dia);
+  }
+  function ehFeriado(d) {   // d = Date em UTC meia-noite
+    const md = String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
+    // Nacionais (data fixa) + 24/06 São João Batista, padroeiro e aniversário de Cariacica (municipal)
+    if (["01-01", "04-21", "05-01", "06-24", "09-07", "10-12", "11-02", "11-15", "11-20", "12-25"].includes(md)) return true;
+    // Datas que mudam todo ano (contadas a partir da Páscoa, calculadas sozinhas para qualquer ano):
+    // Carnaval (seg e ter), Sexta-feira Santa, N. Sra. da Penha (ES: segunda 8 dias após a Páscoa), Corpus Christi (Cariacica)
+    const dif = Math.round((d.getTime() - pascoa(d.getUTCFullYear())) / 86400000);
+    return [-48, -47, -2, 8, 60].includes(dif);
+  }
+  function agoraFabrica() {
+    const p = {};
+    try {
+      new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).forEach((x) => { p[x.type] = x.value; });
+    } catch (e) { const n = new Date(); p.year = n.getFullYear(); p.month = n.getMonth() + 1; p.day = n.getDate(); p.hour = n.getHours(); p.minute = n.getMinutes(); }
+    return { d: new Date(Date.UTC(+p.year, +p.month - 1, +p.day)), h: (+p.hour % 24) + (+p.minute) / 60 };
+  }
+  function fabricaAberta() {
+    const a = agoraFabrica(), s = a.d.getUTCDay();
+    return s >= 1 && s <= 5 && !ehFeriado(a.d) && a.h >= HORA_ABRE && a.h < HORA_FECHA;
+  }
+  function periodoDoCelular() {   // segue a hora do celular do cliente
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return "dia";
+    if (h >= 12 && h < 18) return "tarde";
+    return "noite";
+  }
+
+  function mostrarIntro(arquivo) {
+    const v = $("videoIntro");
+    if (arquivo) { v.poster = arquivo + ".jpg"; v.src = arquivo + ".mp4"; v.load(); }
+    let fechado = false;
+    const fechar = () => {
+      if (fechado) return; fechado = true;
+      try { v.pause(); } catch (e) {}
+      $("intro").classList.add("sumindo");
+      setTimeout(() => esconder("intro"), 500);
+      // depois do vídeo segue direto para o cadastro (LGPD); o convite para instalar só vem depois do 1º pedido
+    };
+    const tocar = () => {
+      esconder("btnTocarIntro");
+      v.muted = false; v.currentTime = 0;
+      v.play().catch(() => { v.muted = true; v.play().catch(fechar); });
+    };
+    mostrar("intro");
+    $("btnTocarIntro").addEventListener("click", tocar);
+    v.addEventListener("click", () => { if (v.paused) tocar(); });
+    $("btnPularIntro").addEventListener("click", fechar);
+    v.addEventListener("ended", () => setTimeout(fechar, 400));
+    v.addEventListener("error", fechar);
+  }
+
+  // Primeira tela
+  if (pelaTela) {
+    if (!instalado && ehCelular && !DEMO) { $("btnInstalarBarra").textContent = "📲 Ícone"; mostrar("btnInstalarBarra"); }
+    abrirTela("cardapio");                    // tocou no ícone: o cardápio já carrega por trás
+    if (jaCadastrado() && !fabricaAberta()) { // cadastrado + fábrica fechada: Rita dá bom dia/boa tarde/boa noite
+      mostrarIntro("rita-" + periodoDoCelular());
+    } else if (jaCadastrado()) {              // cliente com cadastro: abertura com o slogan
+      mostrarAbertura();
+    }
+    else mostrarIntro();                      // ainda sem cadastro: vídeo da Rita Caçula
+  } else {
+    abrirTela("inicio");
+    // o atalho criado a partir desta tela já sai com #icone no endereço
+    if (ehCelular && !dentroDeApp) {
+      try { history.replaceState(null, "", location.pathname + location.search + "#icone"); } catch (e) {}
+    }
+    if (dentroDeApp) mostrar("avisoInstagram");
+    else if (ehIphone) mostrar("avisoIphone");
+    else if (ehCelular) mostrar(ehSamsungInternet ? "avisoSamsung" : "avisoAndroid");
+    // da próxima vez (pelo ícone ou pelo link) já abre como app: vídeo/abertura e cardápio
+    if (ehCelular && !dentroDeApp) { try { localStorage.setItem("cacula_visitou", "1"); } catch (e) {} }
+    else setTimeout(() => { if (!pedidoInstalacao) mostrar("avisoPC"); }, 2500);
+  }
+
+  // Demonstração: nome do "dono" deste celular virtual em cima da tela
+  if (DEMO) {
+    const et = document.createElement("div");
+    et.textContent = "📱 Celular " + DEMO + " – " + (NOMES_DEMO[DEMO] || "Demonstração");
+    et.style.cssText = "position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:2147483647;" +
+      "background:#9C3418;color:#fff;font:700 13px/1.2 Arial,sans-serif;padding:5px 12px;border-radius:14px;" +
+      "box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;white-space:nowrap;opacity:.95";
+    document.body.appendChild(et);
+    document.title = "Celular " + DEMO + " – " + (NOMES_DEMO[DEMO] || "Caçula");
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+</script>
+</body>
+</html>
