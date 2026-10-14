@@ -127,6 +127,11 @@
     padding:6px 12px;font-weight:700;cursor:pointer;flex:none}
   .reserva{background:var(--creme);text-align:center;padding:6px 10px calc(env(safe-area-inset-bottom,0px) + 6px);font-size:.82rem}
   .reserva a{color:var(--terracota);font-weight:600}
+  /* a barrinha "Caçula" de cima só aparece quando tem o botão Instalar (ganha espaço na tela) */
+  .barra:not(:has(#btnInstalarBarra:not(.oculto))){padding:env(safe-area-inset-top,0px) 0 0}
+  .barra:not(:has(#btnInstalarBarra:not(.oculto)))>*{display:none}
+  /* o cardápio avisou que carregou: some o "O cardápio não apareceu?" */
+  .reserva.carregou{display:none}
 
   /* ---------- convite depois do pedido ---------- */
   #convite{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
@@ -428,6 +433,10 @@
       let ok = false; try { ok = localStorage.getItem("cacula_icone_ok") === "1"; } catch (err) {}
       if (DEMO) setTimeout(mostrarGuiaDemo, 2500);   // demonstração: só a explicação, sem baixar nada
       else if (!iconeJaColocado() && !instalado && !dentroDeApp && (ehCelular || pedidoInstalacao)) setTimeout(mostrarConvite, 2500);
+    }
+    // O cardápio avisa que carregou: tira o "O cardápio não apareceu? Toque aqui"
+    if (origemOk && e.data === "cacula:carregou") {
+      const r = document.querySelector(".reserva"); if (r) r.classList.add("carregou");
     }
     // O cardápio avisa que o cliente já tem cadastro: o vídeo da Rita não aparece mais
     if (origemOk && e.data === "cacula:cadastrado") {
