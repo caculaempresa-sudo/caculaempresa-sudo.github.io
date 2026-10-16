@@ -120,7 +120,7 @@
   .barra .nome{font-family:Georgia,serif;font-size:1.15rem;font-weight:700;flex:1}
   .barra button{background:var(--dourado);color:var(--tinta);border:0;border-radius:999px;padding:7px 13px;
     font-weight:700;font-size:.9rem;cursor:pointer}
-  iframe{flex:1;width:100%;border:0;background:#fff}
+  iframe{flex:1;width:100%;border:0;background:var(--creme)}
   .dica{display:flex;gap:10px;align-items:flex-start;background:#FFF6E0;border-bottom:1px solid #E6D5B8;
     padding:10px 12px;font-size:.88rem;line-height:1.4}
   .dica button{margin-left:auto;background:var(--terracota);color:#fff;border:0;border-radius:10px;
@@ -393,7 +393,7 @@
     if (nome === "cardapio") {
       let viu = false;
       try { viu = localStorage.getItem("cacula_dica_google") === "1"; } catch (e) {}
-      if (!viu) mostrar("dicaGoogle");
+      /* aviso da faixa do Google tirado em 16/10/2026: dentro do app a faixa nao aparece */
     }
   }
 
